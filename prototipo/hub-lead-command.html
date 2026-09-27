@@ -1,0 +1,2283 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hub Lead Command</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400..500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300..600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#05090b;
+  --card-a:rgba(19,30,34,.72);
+  --card-b:rgba(9,15,18,.68);
+  --edge:rgba(170,255,240,.075);
+  --edge-2:rgba(170,255,240,.16);
+  --ink:#e6f1f0;
+  --ink-2:#9aafb0;
+  --ink-3:#64797b;
+  --hair:#14222a;
+  --axis:#223440;
+  --accent:#5eead4;
+  --accent-2:#2dd4bf;
+  --meta:#19a898;
+  --google:#c98500;
+  --good:#5fd47a;
+  --bad:#ff5d73;
+  --st1:#15665f;--st2:#1a8378;--st3:#1fa092;--st4:#2cbfae;--st5:#6fdccf;
+  --sans:"Geist","Sora",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --r:16px;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body{margin:0;min-height:100%;color:var(--ink);font:400 14px/1.45 var(--sans);padding-inline:clamp(16px,1.6vw,28px);padding-block:10px 28px;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  background:radial-gradient(1100px 640px at 50% -10%,rgba(45,212,191,.11),transparent 62%),radial-gradient(800px 600px at 105% 105%,rgba(201,133,0,.06),transparent 60%),var(--bg);background-attachment:fixed}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.texture{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(170,255,240,.075) 1px,transparent 1.3px);background-size:22px 22px;-webkit-mask-image:radial-gradient(90% 70% at 50% 25%,#000 15%,transparent 75%);mask-image:radial-gradient(90% 70% at 50% 25%,#000 15%,transparent 75%)}
+.app{position:relative;z-index:1;max-width:1920px;margin:0 auto}
+
+/* entrada */
+.enter .pa{animation:paIn .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 60ms)}
+@keyframes paIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.recal{animation:recal .9s ease-out}
+@keyframes recal{35%{border-color:rgba(94,234,212,.38);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 34px -6px rgba(94,234,212,.22)}}
+
+/* barra superior */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;padding:9px 12px 9px 14px;margin-bottom:12px;border:1px solid var(--edge);border-radius:14px;background:rgba(7,12,14,.8);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%)}
+.brand{display:flex;align-items:center;gap:10px;margin-right:4px}
+.mark{width:30px;height:30px;flex:0 0 auto}
+.mark .mdot{transform-origin:16px 16px;animation:mspin 6s linear infinite}
+@keyframes mspin{to{transform:rotate(360deg)}}
+.b1{font:600 13.5px/1.1 var(--sans);letter-spacing:.005em;white-space:nowrap}
+.b2{margin-top:3px;font:500 10px var(--mono);letter-spacing:.16em;color:var(--accent);text-transform:uppercase;white-space:nowrap}
+.filters{position:relative;display:flex;flex-wrap:wrap;gap:8px;flex:1 1 auto;min-width:0}
+.fp{position:relative}
+.pill{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border:1px solid var(--edge);border-radius:10px;background:rgba(255,255,255,.025);font:500 12.5px var(--sans);cursor:pointer;white-space:nowrap;transition:border-color .2s,background .2s}
+.pill:hover{border-color:var(--edge-2);background:rgba(255,255,255,.045)}
+.pill[aria-expanded="true"]{border-color:rgba(94,234,212,.42);background:rgba(94,234,212,.07)}
+.pk{color:var(--ink-3)}
+.pv{color:var(--ink)}
+.chev{width:7px;height:7px;border-right:1.5px solid var(--ink-2);border-bottom:1.5px solid var(--ink-2);transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.pill[aria-expanded="true"] .chev{transform:translateY(1px) rotate(225deg)}
+.pop{position:absolute;top:calc(100% + 8px);left:0;z-index:30;min-width:260px;max-width:min(440px,calc(100vw - 32px));padding:6px;border:1px solid var(--edge-2);border-radius:12px;background:rgba(8,13,15,.97);box-shadow:0 28px 60px -16px rgba(0,0,0,.8);animation:popIn .18s ease-out}
+@keyframes popIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.opt{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:var(--ink-2);font:500 13px var(--sans);text-align:left;cursor:pointer}
+.opt:hover,.opt:focus-visible{background:rgba(255,255,255,.055);color:var(--ink);outline:none}
+.opt .ck{flex:0 0 auto;width:16px;height:16px;border:1px solid var(--edge-2);border-radius:5px;display:grid;place-items:center}
+.opt[role="menuitemradio"] .ck{border-radius:50%}
+.opt[aria-checked="true"]{color:var(--ink)}
+.opt[aria-checked="true"] .ck{border-color:var(--accent);background:rgba(94,234,212,.12)}
+.opt[aria-checked="true"] .ck::after{content:"";width:8px;height:8px;border-radius:inherit;background:var(--accent)}
+.opt .od{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--c)}
+.opt .ot{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.opt .os{font:500 10.5px var(--mono);color:var(--ink-3);white-space:nowrap}
+.pop-acts{display:flex;gap:6px;margin-top:4px;padding:8px 4px 2px;border-top:1px solid var(--hair)}
+.pop-acts button{flex:1;height:30px;border:1px solid var(--edge);border-radius:8px;background:transparent;color:var(--ink-2);font:500 12px var(--sans);cursor:pointer}
+.pop-acts button:hover{color:var(--ink);border-color:var(--edge-2)}
+.pop-note{padding:10px;font:500 12px var(--sans);color:var(--ink-3)}
+.tb-r{display:flex;align-items:center;gap:12px;margin-left:auto}
+.demo{display:inline-flex;align-items:center;height:26px;padding:0 10px;border:1px solid var(--edge-2);border-radius:999px;font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap;background:repeating-linear-gradient(135deg,rgba(94,234,212,.09) 0 5px,transparent 5px 10px)}
+.clock{display:flex;flex-direction:column;align-items:flex-end;line-height:1.2}
+.clock b{font:500 14px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.clock small{font:500 9.5px var(--mono);letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
+
+/* cartões */
+.card{position:relative;min-width:0;padding:16px;border:1px solid var(--edge);border-radius:var(--r);background:linear-gradient(180deg,var(--card-a),var(--card-b));box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 30px 60px -30px rgba(0,0,0,.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.card:hover{border-color:rgba(170,255,240,.12)}
+.glare{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(94,234,212,.065),transparent 65%)}
+.glare::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:radial-gradient(180px circle at var(--mx,50%) var(--my,50%),rgba(94,234,212,.55),transparent 70%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.fx:hover>.glare{opacity:1}
+.ch{position:relative;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-bottom:12px}
+.ch h2{margin:0;font:500 13.5px/1.25 var(--sans);letter-spacing:.005em;color:var(--ink);text-wrap:balance}
+.ch-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 9px;border:1px solid var(--edge);border-radius:999px;font:500 10.5px var(--mono);color:var(--ink-2);white-space:nowrap}
+.good{color:var(--good)}
+.bad{color:var(--bad)}
+.flat{color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font:500 11.5px var(--sans);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.lg{width:9px;height:9px;border-radius:2px;background:var(--c)}
+.mini-btn{height:24px;padding:0 9px;border:1px solid var(--edge);border-radius:999px;background:transparent;color:var(--ink-2);font:500 11px var(--sans);cursor:pointer}
+.mini-btn:hover{color:var(--ink);border-color:var(--edge-2)}
+.mini-btn[aria-pressed="true"]{color:#03201c;background:var(--accent);border-color:var(--accent)}
+.empty{display:grid;place-items:center;min-height:120px;padding:16px;border:1px dashed var(--hair);border-radius:12px;color:var(--ink-3);font:500 12.5px/1.5 var(--sans);text-align:center}
+
+/* central de comando */
+.cc{display:grid;grid-template-columns:minmax(262px,300px) minmax(0,1fr) minmax(290px,340px);gap:14px;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.kpi-hero{display:flex;flex-direction:column;flex:1 1 auto;min-height:200px}
+.big{margin-top:2px;font:300 46px/1 var(--sans);letter-spacing:-.025em;color:var(--ink)}
+.subl{margin-top:9px;font:500 11.5px/1.35 var(--mono);color:var(--ink-3)}
+.subl b{font-weight:500}
+.hspark{position:relative;flex:1 1 auto;min-height:36px;margin-top:12px}
+.hspark canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.split{display:flex;gap:14px;margin-top:10px;font:500 11.5px var(--mono);color:var(--ink-2)}
+.split span{display:inline-flex;align-items:center;gap:6px}
+.split i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.kgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mini{padding:9px 12px}
+.mini>h3{margin:0;font:500 11px var(--sans);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini>b{display:block;margin-top:5px;font:300 22px/1.05 var(--sans);letter-spacing:-.015em;color:var(--ink);white-space:nowrap}
+.mini>span{display:block;margin-top:5px;font:500 10px/1.35 var(--mono);color:var(--ink-3)}
+.mini>span b{font-weight:500}
+.fwrap{position:relative;height:192px}
+canvas.fill{position:absolute;inset:0;width:100%;height:100%;display:block}
+.col-c .orbit-card{flex:1 1 auto}
+.crow{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px}
+.etapas{flex:1 1 auto;display:flex;flex-direction:column}
+.etapas .stl{flex:1 1 auto;justify-content:space-evenly}
+
+/* órbita */
+.orbit-card{padding:0;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(110% 85% at 50% 52%,rgba(22,70,66,.34),transparent 64%),linear-gradient(180deg,rgba(12,21,24,.8),rgba(5,10,12,.8))}
+.stage3d{position:relative;flex:1 1 auto;min-height:400px}
+#orbit{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab;outline:none}
+#orbit.drag{cursor:grabbing}
+.ov-top{position:absolute;left:18px;right:200px;top:16px;pointer-events:none}
+.ov-top h2{margin:0;font:500 16px/1.2 var(--sans);letter-spacing:.005em}
+.ov-top p{margin:4px 0 0;font:400 12px var(--sans);color:var(--ink-3)}
+.olg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font:500 11.5px var(--sans);color:var(--ink-2)}
+.olg span{display:inline-flex;align-items:center;gap:6px}
+.olg i{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.olg i.won{background:#effffb;box-shadow:0 0 8px #bff7ee}
+.olg i.stale{background:transparent;border:1.5px solid var(--bad);box-shadow:none}
+.replay{position:absolute;right:18px;top:16px;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.rrow{display:flex;align-items:center;gap:8px}
+.rbtn{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 12px;border:1px solid var(--edge-2);border-radius:999px;background:rgba(5,10,12,.62);color:var(--ink-2);font:500 11.5px var(--sans);cursor:pointer}
+.rbtn:hover{color:var(--ink);border-color:rgba(94,234,212,.45)}
+.rbtn svg{width:9px;height:9px}
+.rtrack{width:110px;height:2px;border-radius:2px;background:var(--hair);overflow:hidden}
+.rtrack i{display:block;height:100%;width:0;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.rdate{min-width:40px;font:500 11px var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.otip{position:absolute;left:0;top:0;z-index:5;pointer-events:none;min-width:190px;max-width:250px;padding:10px 12px;border:1px solid var(--edge-2);border-radius:12px;background:rgba(5,10,12,.94);box-shadow:0 18px 40px -14px rgba(0,0,0,.75);font:400 12px/1.45 var(--sans);color:var(--ink-2)}
+.otip .t1{display:flex;align-items:center;gap:7px;font:500 10.5px var(--mono);letter-spacing:.06em;color:var(--ink-3)}
+.otip .t1 i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.otip .t2{margin-top:4px;font:500 13px/1.3 var(--sans);color:var(--ink)}
+.otip .t3{display:flex;justify-content:space-between;gap:10px;margin-top:6px}
+.otip .t3 b{font:500 13px var(--sans);color:var(--ink)}
+.otip .t3 span.stale{color:var(--bad)}
+
+/* pergunte ao painel */
+.ask{position:absolute;left:16px;right:16px;bottom:16px;z-index:6;display:flex;flex-direction:column}
+@media (min-width:701px){.ask .sugs{order:-1;margin:0 0 8px}}
+.askf{display:flex;align-items:center;gap:8px;height:48px;padding:0 6px 0 14px;border:1px solid var(--edge-2);border-radius:14px;background:rgba(5,10,12,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 14px 30px -14px rgba(0,0,0,.7);transition:border-color .2s,box-shadow .2s}
+.askf:focus-within{border-color:rgba(94,234,212,.5);box-shadow:0 0 0 3px rgba(94,234,212,.1),0 14px 30px -14px rgba(0,0,0,.7)}
+.askf .ai{flex:0 0 auto;width:16px;height:16px;color:var(--accent)}
+.askf input{flex:1;min-width:0;height:100%;border:0;background:transparent;font:400 14px var(--sans);color:var(--ink);outline:none}
+.askf input::placeholder{color:var(--ink-3)}
+.askf button{flex:0 0 auto;height:36px;padding:0 15px;border:0;border-radius:10px;background:var(--accent);color:#03201c;font:600 12.5px var(--sans);cursor:pointer}
+.askf button:disabled{opacity:.45;cursor:default}
+.sugs{display:none;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ask:focus-within .sugs{display:flex}
+.sugs button{height:28px;padding:0 11px;border:1px solid var(--edge);border-radius:999px;background:rgba(5,10,12,.8);color:var(--ink-2);font:500 11.5px var(--sans);cursor:pointer}
+.sugs button:hover{color:var(--ink);border-color:var(--edge-2)}
+.ans{position:absolute;left:0;right:0;bottom:calc(100% + 10px);max-height:min(320px,52vh);overflow:auto;padding:14px 16px;border:1px solid rgba(94,234,212,.28);border-radius:14px;background:rgba(5,10,12,.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 24px 50px -18px rgba(0,0,0,.8)}
+.ans-h{display:flex;align-items:center;gap:8px;margin-bottom:8px;font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+.ans-h .sp{flex:1}
+.ans-h button{height:24px;padding:0 9px;border:1px solid var(--edge);border-radius:8px;background:transparent;color:var(--ink-2);font:500 11px var(--sans);letter-spacing:0;text-transform:none;cursor:pointer}
+.ans-q{margin-bottom:6px;font:500 12px var(--sans);color:var(--ink-3)}
+.ans-t{font:400 13.5px/1.62 var(--sans);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.ans-t.thinking{color:var(--ink-3)}
+.ans-t.thinking::after{content:"";display:inline-block;width:22px;height:2px;margin-left:8px;vertical-align:middle;border-radius:2px;background:linear-gradient(90deg,var(--accent),transparent);animation:think 1.1s ease-in-out infinite}
+@keyframes think{0%,100%{transform:scaleX(.25);opacity:.5}50%{transform:scaleX(1);opacity:1}}
+.ans-n{margin-top:8px;font:500 11.5px var(--sans);color:var(--ink-3)}
+
+/* retorno e etapas */
+.gauge{position:relative;height:146px}
+.gauge canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.gc{position:absolute;left:0;right:0;top:54px;text-align:center;pointer-events:none}
+.gc b{display:block;font:300 38px/1 var(--sans);letter-spacing:-.02em;color:var(--ink)}
+.gc span{display:block;margin-top:6px;font:500 10px var(--mono);letter-spacing:.18em;color:var(--ink-3)}
+.roi-l{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.roi-l div{min-width:0;padding:9px 12px;border:1px solid var(--hair);border-radius:10px;background:rgba(0,0,0,.18)}
+.roi-l span{display:block;font:500 11px var(--sans);color:var(--ink-3)}
+.roi-l b{display:block;margin-top:4px;font:400 17px/1.15 var(--sans);color:var(--ink);white-space:nowrap}
+.roi-note{margin:10px 0 0;font:400 11.5px/1.5 var(--sans);color:var(--ink-3)}
+.stl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.stl li{display:grid;grid-template-columns:10px minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;transition:background .2s}
+.stl li:hover,.stl li.hl{background:rgba(94,234,212,.07)}
+.stl .sd{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.stl .sn{min-width:0;font:500 12.5px var(--sans);color:var(--ink-2)}
+.stl .sb{display:block;height:3px;margin-top:6px;border-radius:2px;background:var(--hair);overflow:hidden}
+.stl .sb i{display:block;height:100%;width:0;border-radius:2px;background:var(--c);transition:width 1s cubic-bezier(.2,.9,.2,1)}
+.stl .sc{font:400 16px var(--sans);color:var(--ink);text-align:right}
+.stl .sv{min-width:62px;font:500 10.5px var(--mono);color:var(--ink-3);text-align:right}
+.stf{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;padding-top:10px;border-top:1px solid var(--hair);font:500 11px var(--mono);color:var(--ink-3)}
+.stf b{font-weight:500;color:var(--ink)}
+.stf .bad b{color:var(--bad)}
+
+/* gráficos */
+.dwrap{position:relative;height:200px;touch-action:pan-y;outline:none;border-radius:8px}
+.cplwrap{position:relative;height:200px;touch-action:pan-y;outline:none}
+.tip{position:absolute;left:0;top:0;z-index:4;pointer-events:none;display:grid;grid-template-columns:12px auto auto;align-items:center;column-gap:8px;min-width:160px;padding:9px 11px 8px;border:1px solid var(--edge-2);border-radius:10px;background:rgba(5,10,12,.95);box-shadow:0 14px 30px -12px rgba(0,0,0,.7);font:500 12px/1.75 var(--mono);color:var(--ink-2)}
+.tip .td{grid-column:1/-1;margin-bottom:4px;font:500 10.5px var(--mono);letter-spacing:.1em;color:var(--accent);text-transform:uppercase}
+.tip .tr{display:contents}
+.tip .tr b{font-weight:500;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.tip .tr span{color:var(--ink-3)}
+.tip .key{width:12px;height:2px;border-radius:1px;background:var(--c)}
+.tip .sep{grid-column:1/-1;height:1px;margin:4px 0;background:var(--hair)}
+.table-wrap{max-height:200px;overflow:auto;border:1px solid var(--hair);border-radius:10px}
+table.dt{width:100%;border-collapse:collapse;font:500 12px var(--mono);font-variant-numeric:tabular-nums}
+.dt th,.dt td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--hair)}
+.dt th:first-child,.dt td:first-child{text-align:left}
+.dt thead th{position:sticky;top:0;background:#0a1316;color:var(--ink-3);font-weight:500;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.dt td{color:var(--ink-2)}
+
+/* audiência */
+.aud{margin-top:14px}
+.aud-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,9fr);gap:14px;align-items:stretch}
+.aud-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.at{min-width:0;padding:12px 13px;border:1px solid var(--hair);border-radius:12px;background:rgba(0,0,0,.16)}
+.at>h3{margin:0;font:500 11.5px var(--sans);color:var(--ink-2)}
+.at>b{display:block;margin-top:6px;font:300 26px/1.05 var(--sans);letter-spacing:-.015em;color:var(--ink);white-space:nowrap}
+.at>span{display:block;margin-top:6px;font:500 10.5px/1.35 var(--mono);color:var(--ink-3)}
+.at>span b{font-weight:500}
+.aud-charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mc{min-width:0;padding:10px 12px 8px;border:1px solid var(--hair);border-radius:12px;background:rgba(0,0,0,.12)}
+.mc>h3{margin:0 0 6px;font:500 11.5px var(--sans);color:var(--ink-2)}
+.mwrap{position:relative;height:156px;touch-action:pan-y;outline:none}
+.aud-note{margin:12px 0 0;font:400 11.5px/1.5 var(--sans);color:var(--ink-3)}
+
+/* campanhas e eventos */
+.lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);gap:14px;margin-top:14px;align-items:start}
+.objwrap{overflow-x:auto;margin-bottom:12px}
+table.obj{width:100%;border-collapse:collapse;font:500 12.5px var(--sans)}
+.obj th{padding:6px 10px;border-bottom:1px solid var(--hair);font:500 10px var(--mono);letter-spacing:.08em;color:var(--ink-3);text-align:right;text-transform:uppercase;white-space:nowrap}
+.obj td{padding:9px 10px;border-bottom:1px solid var(--hair);color:var(--ink);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.obj th:first-child,.obj td:first-child{text-align:left}
+.obj td .u{margin-left:5px;font-size:11.5px;color:var(--ink-3)}
+.camps{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.camps .empty{grid-column:1/-1}
+.camp{position:relative;min-width:0;padding:13px 14px 14px;border:1px solid var(--edge);border-radius:12px;background:linear-gradient(160deg,rgba(24,38,42,.62),rgba(8,14,16,.5));transition:border-color .3s,transform .25s ease-out,box-shadow .3s}
+.camp:hover{border-color:rgba(94,234,212,.28);box-shadow:0 18px 40px -20px rgba(0,0,0,.7)}
+.c-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.c-src{display:inline-flex;align-items:center;gap:6px;min-width:0;font:500 10.5px var(--mono);letter-spacing:.04em;color:var(--ink-3)}
+.c-src i{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.c-src span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill-s{flex:0 0 auto}
+.pill-s{display:inline-flex;align-items:center;gap:6px;height:20px;padding:0 8px;border:1px solid;border-radius:999px;font:500 10px var(--mono);letter-spacing:.06em}
+.pill-s.on{color:var(--good);border-color:rgba(95,212,122,.35);background:rgba(95,212,122,.06)}
+.pill-s.on i{width:6px;height:6px;border-radius:50%;background:var(--good);animation:blink 1.8s infinite}
+.pill-s.off{color:var(--ink-3);border-color:var(--hair)}
+.pill-s.off i{width:6px;height:7px;border-left:2px solid currentColor;border-right:2px solid currentColor}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.c-title{margin-top:8px;font:500 14.5px/1.3 var(--sans);color:var(--ink);text-wrap:balance}
+.c-type{margin-top:2px;font:400 11.5px var(--sans);color:var(--ink-3)}
+.c-mid{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:10px}
+.c-big b{display:block;font:300 30px/1 var(--sans);letter-spacing:-.02em;color:var(--ink)}
+.c-big span{display:block;margin-top:4px;font:500 10.5px var(--sans);color:var(--ink-3)}
+.c-spark{display:block;width:min(120px,48%);height:36px}
+.c-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:11px}
+.cell{min-width:0;padding:7px 9px;border:1px solid var(--hair);border-radius:8px;background:rgba(0,0,0,.16)}
+.cell .k{font:500 10.5px var(--sans);color:var(--ink-3)}
+.cell .v{margin-top:2px;font:500 13px var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pace{margin-top:11px}
+.pace-h{display:flex;justify-content:space-between;gap:8px;font:500 10.5px var(--sans);color:var(--ink-3)}
+.pace-h b{font:500 10.5px var(--mono);color:var(--ink-2);text-align:right}
+.pace-bar{margin-top:6px;height:3px;border-radius:2px;background:var(--hair);overflow:hidden}
+.pace-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent-2),var(--accent));box-shadow:0 0 8px var(--accent);transition:width 1.2s cubic-bezier(.2,.9,.2,1)}
+.feed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ev{display:grid;grid-template-columns:10px minmax(0,1fr);gap:10px;padding:9px 2px;border-bottom:1px solid var(--hair)}
+.ev:last-child{border-bottom:0}
+.ev.in{animation:evIn .45s ease-out both}
+@keyframes evIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ev .ed{width:7px;height:7px;margin-top:5px;border-radius:50%;background:var(--c)}
+.ev .et{display:flex;justify-content:space-between;gap:10px;font:500 10.5px var(--mono);letter-spacing:.06em;color:var(--ink-3)}
+.ev .ek{text-transform:uppercase}
+.ev.win .ek{color:var(--good)}
+.ev.lost .ek{color:var(--bad)}
+.ev .em{margin:3px 0 0;font:400 12.5px/1.45 var(--sans);color:var(--ink-2);overflow-wrap:anywhere}
+.foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;margin-top:16px;padding-top:12px;border-top:1px solid var(--hair);font:500 10.5px var(--mono);letter-spacing:.08em;color:var(--ink-3)}
+
+/* desktop: a central ocupa a altura da tela */
+@media (min-width:1280px){
+  .cc{min-height:max(640px,calc(100vh - 86px))}
+  .col-c .stage3d{min-height:360px}
+}
+@media (min-width:1600px){
+  .cc{grid-template-columns:330px minmax(0,1fr) 380px}
+  .big{font-size:54px}
+  .dwrap,.cplwrap{height:230px}
+  .fwrap{height:240px}
+}
+@media (max-width:1279px){
+  .cc{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"c c" "l r"}
+  .col-c{grid-area:c}
+  .col-l{grid-area:l}
+  .col-r{grid-area:r}
+  .stage3d{min-height:560px}
+  .kpi-hero{flex:0 0 auto}
+  .lower{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:1100px){
+  .aud-grid{grid-template-columns:minmax(0,1fr)}
+  .aud-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .crow{grid-template-columns:minmax(0,1fr)}
+  .aud-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .aud-charts{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:700px){
+  body{padding-block:10px 24px}
+  .topbar{padding:10px}
+  .filters{order:3;flex-basis:100%}
+  .fp{position:static}
+  .pop{left:0;right:0;max-width:none}
+  .clock small{display:none}
+  .cc{grid-template-columns:minmax(0,1fr);grid-template-areas:"c" "l" "r"}
+  .stage3d{min-height:430px}
+  .ov-top{left:14px;right:14px;top:12px}
+  .replay{top:auto;right:auto;left:14px;bottom:12px;flex-direction:row;align-items:center}
+  .ask{position:relative;left:auto;right:auto;bottom:auto;margin:0 12px 12px}
+  .ans{position:static;margin-bottom:10px;max-height:none}
+  .big{font-size:40px}
+  .obj .n{display:none}
+  .obj th,.obj td{padding-inline:7px}
+}
+@media (prefers-reduced-motion:reduce){
+  .mark .mdot,.pill-s.on i{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="texture" aria-hidden="true"></div>
+<div class="app" id="app">
+  <header class="topbar pa" style="--i:0">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="4.2" fill="#5eead4"/>
+        <circle cx="16" cy="16" r="9.5" fill="none" stroke="#5eead4" stroke-opacity=".35" stroke-width="1"/>
+        <ellipse cx="16" cy="16" rx="14" ry="5.2" fill="none" stroke="#5eead4" stroke-opacity=".7" stroke-width="1.1" transform="rotate(-22 16 16)"/>
+        <g class="mdot"><circle cx="30" cy="16" r="1.8" fill="#c98500"/></g>
+      </svg>
+      <div><div class="b1">Hub Performance</div><div class="b2">Lead Command</div></div>
+    </div>
+    <nav class="filters" aria-label="Filtros">
+      <div class="fp" data-f="periodo"><button type="button" class="pill" aria-haspopup="menu" aria-expanded="false"><span class="pk">Período</span><span class="pv" id="pvPeriodo"></span><i class="chev"></i></button><div class="pop" role="menu" aria-label="Período" hidden></div></div>
+      <div class="fp" data-f="fontes"><button type="button" class="pill" aria-haspopup="menu" aria-expanded="false"><span class="pk">Fontes</span><span class="pv" id="pvFontes"></span><i class="chev"></i></button><div class="pop" role="menu" aria-label="Fontes" hidden></div></div>
+      <div class="fp" data-f="status"><button type="button" class="pill" aria-haspopup="menu" aria-expanded="false"><span class="pk">Status</span><span class="pv" id="pvStatus"></span><i class="chev"></i></button><div class="pop" role="menu" aria-label="Status das campanhas" hidden></div></div>
+      <div class="fp" data-f="campanhas"><button type="button" class="pill" aria-haspopup="menu" aria-expanded="false"><span class="pk">Campanhas</span><span class="pv" id="pvCamp"></span><i class="chev"></i></button><div class="pop" role="menu" aria-label="Campanhas" hidden></div></div>
+    </nav>
+    <div class="tb-r">
+      <span class="demo" title="Números de exemplo gerados no navegador">Modo demo</span>
+      <span class="clock"><b id="clock">--:--:--</b><small id="date"></small></span>
+    </div>
+  </header>
+
+  <section class="cc">
+    <aside class="col col-l">
+      <article class="card fx pa kpi-hero" style="--i:1">
+        <i class="glare"></i>
+        <div class="ch"><h2>Leads no período</h2><span class="chip" id="chipPer"></span></div>
+        <div class="big" id="kLeads">0</div>
+        <div class="split" id="kSplit"></div>
+        <div class="subl" id="kLeadsSub"></div>
+        <div class="hspark" id="kSparkWrap"><canvas id="kSpark" aria-hidden="true"></canvas></div>
+      </article>
+      <div class="kgrid pa" style="--i:2">
+        <article class="card mini fx"><i class="glare"></i><h3>Investimento</h3><b id="kInv">0</b><span id="kInvSub"></span></article>
+        <article class="card mini fx" title="Investimento das campanhas de lead dividido pelos leads delas. Campanhas de audiência ficam fora da conta."><i class="glare"></i><h3>Custo por lead</h3><b id="kCpl">0</b><span id="kCplSub"></span></article>
+        <article class="card mini fx"><i class="glare"></i><h3>Qualificados</h3><b id="kQual">0</b><span id="kQualSub"></span></article>
+        <article class="card mini fx"><i class="glare"></i><h3>Vendas</h3><b id="kVen">0</b><span id="kVenSub"></span></article>
+        <article class="card mini fx"><i class="glare"></i><h3>Seguidores novos</h3><b id="kSeg">0</b><span id="kSegSub"></span></article>
+        <article class="card mini fx"><i class="glare"></i><h3>Visitas ao perfil</h3><b id="kVis">0</b><span id="kVisSub"></span></article>
+      </div>
+      <article class="card fx pa" style="--i:3">
+        <i class="glare"></i>
+        <div class="ch"><h2>Funil das campanhas de lead</h2></div>
+        <div class="fwrap" id="fWrap"><canvas class="fill" id="funil" role="img"></canvas></div>
+        <div class="sr-only"><table id="fTable"></table></div>
+      </article>
+    </aside>
+
+    <div class="col col-c">
+      <section class="card orbit-card pa" style="--i:4" id="orbitCard">
+        <div class="stage3d" id="stage3d">
+          <canvas id="orbit" role="img"></canvas>
+          <div class="ov-top">
+            <h2>Órbita do pipeline</h2>
+            <p id="orbitSub"></p>
+            <div class="olg">
+              <span><i style="--c:var(--meta)"></i>Meta Ads</span>
+              <span><i style="--c:var(--google)"></i>Google Ads</span>
+              <span><i class="won"></i>Venda</span>
+              <span><i class="stale"></i>Parado 7+ dias</span>
+            </div>
+          </div>
+          <div class="replay" id="replay">
+            <button type="button" class="rbtn" id="btnReplay"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1.2v7.6L8.6 5z" fill="currentColor"/></svg><span>Replay do período</span></button>
+            <div class="rrow"><div class="rtrack" aria-hidden="true"><i id="rbar"></i></div><span class="rdate" id="rdate" aria-live="off"></span></div>
+          </div>
+          <div class="otip" id="otip" hidden></div>
+        </div>
+        <div class="ask" id="ask" hidden>
+          <div class="ans" id="ans" hidden>
+            <div class="ans-h"><span>Resposta do Claude</span><span class="sp"></span><button type="button" id="ansStop" hidden>Parar</button><button type="button" id="ansClose">Fechar</button></div>
+            <div class="ans-q" id="ansQ"></div>
+            <div class="ans-t" id="ansText" aria-live="polite"></div>
+            <div class="ans-n" id="ansNote"></div>
+          </div>
+          <form class="askf" id="askForm" autocomplete="off">
+            <svg class="ai" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0l1.8 5.2L15 7l-5.2 1.8L8 14l-1.8-5.2L1 7l5.2-1.8z" fill="currentColor"/></svg>
+            <label class="sr-only" for="askInput">Pergunte ao painel</label>
+            <input id="askInput" type="text" maxlength="300" placeholder="Pergunte ao painel. Ex.: onde o funil está travando?">
+            <button type="submit" id="askSend">Perguntar</button>
+          </form>
+          <div class="sugs" id="sugs">
+            <button type="button">Onde o funil está travando?</button>
+            <button type="button">Qual campanha merece mais verba?</button>
+            <button type="button">A audiência está trazendo resultado?</button>
+            <button type="button">Resuma o período em 3 pontos</button>
+          </div>
+        </div>
+      </section>
+      <div class="crow">
+        <article class="card fx pa" style="--i:5">
+          <i class="glare"></i>
+          <div class="ch"><h2>Leads por dia</h2><div class="ch-r"><div class="legend"><span id="lgM"><i class="lg" style="--c:var(--meta)"></i>Meta Ads</span><span id="lgG"><i class="lg" style="--c:var(--google)"></i>Google Ads</span></div><button type="button" class="mini-btn" id="tblBtn" aria-pressed="false">Tabela</button></div></div>
+          <div class="dwrap" id="dWrap" tabindex="0" aria-label="Leads por dia, use as setas para ver cada dia"><canvas class="fill" id="daily" role="img"></canvas><div class="tip" id="dTip" hidden></div></div>
+          <div class="table-wrap" id="dTable" hidden></div>
+        </article>
+        <article class="card fx pa" style="--i:6">
+          <i class="glare"></i>
+          <div class="ch"><h2>CPL por fonte</h2><span class="chip">média de 7 dias</span></div>
+          <div class="cplwrap" id="cplWrap" tabindex="0" aria-label="CPL por fonte, use as setas para ver cada dia"><canvas class="fill" id="cpl" role="img"></canvas><div class="tip" id="cplTip" hidden></div></div>
+        </article>
+      </div>
+    </div>
+
+    <aside class="col col-r">
+      <article class="card fx pa" style="--i:7">
+        <i class="glare"></i>
+        <div class="ch"><h2>Retorno</h2><span class="chip">receita ÷ investimento</span></div>
+        <div class="gauge" id="gaugeWrap"><canvas id="gauge" aria-hidden="true"></canvas><div class="gc"><b id="roas">0</b><span>ROAS</span></div></div>
+        <div class="roi-l">
+          <div><span>Receita gerada</span><b id="rev">0</b></div>
+          <div><span>ROI</span><b id="roi">0</b></div>
+          <div><span>Custo por venda</span><b id="cac">0</b></div>
+          <div><span id="roasLLbl">ROAS sem audiência</span><b id="roasL">0</b></div>
+        </div>
+        <p class="roi-note" id="roiNote"></p>
+      </article>
+      <article class="card fx pa etapas" style="--i:8">
+        <i class="glare"></i>
+        <div class="ch"><h2>Etapas no Pipedrive</h2><span class="chip" id="chipEtapas"></span></div>
+        <ul class="stl" id="stl"></ul>
+        <div class="stf" id="stf"></div>
+      </article>
+    </aside>
+  </section>
+
+  <section class="card aud pa" style="--i:9">
+    <div class="ch"><h2>Audiência</h2><div class="ch-r"><span class="chip">tráfego para o perfil, vídeo e Instagram</span><button type="button" class="mini-btn" id="audTblBtn" aria-pressed="false">Tabela</button></div></div>
+    <div class="aud-grid">
+      <div class="aud-kpis">
+        <div class="at"><h3>Seguidores novos</h3><b id="aSeg">0</b><span id="aSegSub"></span></div>
+        <div class="at"><h3>Visitas ao perfil</h3><b id="aVis">0</b><span id="aVisSub"></span></div>
+        <div class="at"><h3>ThruPlays de vídeo</h3><b id="aTp">0</b><span id="aTpSub"></span></div>
+        <div class="at"><h3>Investimento em audiência</h3><b id="aInv">0</b><span id="aInvSub"></span></div>
+      </div>
+      <div class="aud-charts" id="audCharts">
+        <div class="mc"><h3>Seguidores novos por dia</h3><div class="mwrap" id="mSegWrap" tabindex="0" aria-label="Seguidores novos por dia"><canvas class="fill" id="mSeg" role="img"></canvas><div class="tip" id="mSegTip" hidden></div></div></div>
+        <div class="mc"><h3>Visitas ao perfil por dia</h3><div class="mwrap" id="mVisWrap" tabindex="0" aria-label="Visitas ao perfil por dia"><canvas class="fill" id="mVis" role="img"></canvas><div class="tip" id="mVisTip" hidden></div></div></div>
+        <div class="mc"><h3>ThruPlays por dia</h3><div class="mwrap" id="mTpWrap" tabindex="0" aria-label="ThruPlays por dia"><canvas class="fill" id="mTp" role="img"></canvas><div class="tip" id="mTpTip" hidden></div></div></div>
+      </div>
+      <div class="table-wrap aud-table" id="audTable" hidden></div>
+    </div>
+    <p class="aud-note">Seguidores novos vêm dos insights da conta do Instagram e somam orgânico e pago, por isso não mudam com o filtro de campanha. Visitas ao perfil e ThruPlays vêm das campanhas selecionadas.</p>
+  </section>
+
+  <section class="lower">
+    <article class="card pa" style="--i:10">
+      <div class="ch"><h2>Campanhas</h2><span class="chip" id="chipCamp"></span></div>
+      <div class="objwrap" id="objWrap"></div>
+      <div class="camps" id="camps"></div>
+    </article>
+    <article class="card pa" style="--i:11">
+      <div class="ch"><h2>Eventos do Pipedrive</h2><span class="chip" id="chipEv"></span></div>
+      <ol class="feed" id="feed"></ol>
+    </article>
+  </section>
+
+  <footer class="foot">
+    <span>Hub Performance · Lead Command</span>
+    <span>Modo demo: números de exemplo gerados no navegador, nenhuma conta conectada</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= utilidades ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const DAY = 86400000;
+const TAU = Math.PI * 2;
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FINE = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+const AUTOMATED = navigator.webdriver === true;
+const ease = {
+  out: t => 1 - Math.pow(1 - t, 3),
+  inOut: t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  back: t => { const c1 = 1.3, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
+};
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function roundRect(ctx, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); }
+function topoArredondado(ctx, x, y, w, h, r) { r = Math.max(0, Math.min(r, w / 2, h)); ctx.beginPath(); ctx.moveTo(x, y + h); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h); ctx.closePath(); }
+
+/* ================= configuração =================
+   Moeda e idioma de exibição. Para acompanhar Portugal, troque moeda para 'EUR'. */
+const CONFIG = { moeda: 'BRL', locale: 'pt-BR' };
+
+const css = getComputedStyle(document.documentElement);
+const tok = (n, f) => css.getPropertyValue('--' + n).trim() || f;
+const COL = {
+  hair: tok('hair', '#14222a'), axis: tok('axis', '#223440'),
+  ink: tok('ink', '#e6f1f0'), ink2: tok('ink-2', '#9aafb0'), ink3: tok('ink-3', '#64797b'),
+  accent: tok('accent', '#5eead4'), accent2: tok('accent-2', '#2dd4bf'),
+  meta: tok('meta', '#19a898'), google: tok('google', '#c98500'),
+  good: tok('good', '#5fd47a'), bad: tok('bad', '#ff5d73'),
+  st: [1, 2, 3, 4, 5].map(i => tok('st' + i, '#2cbfae')),
+  surface: '#0c1417', neutral: '#b9d7d2'
+};
+const SANS = tok('sans', 'sans-serif');
+const MONO = tok('mono', 'monospace');
+const SRC = {
+  meta: { nome: 'Meta Ads', curto: 'Meta', cor: COL.meta },
+  google: { nome: 'Google Ads', curto: 'Google', cor: COL.google }
+};
+const OBJ = {
+  leads: { nome: 'Leads', rotulo: 'Leads', curto: 'lead', res: 'leads', un: 'lead' },
+  trafego: { nome: 'Tráfego para o perfil', rotulo: 'Tráfego', curto: 'perfil', res: 'visitas', un: 'visita' },
+  video: { nome: 'Vídeo', rotulo: 'Vídeo', curto: 'vídeo', res: 'ThruPlays', un: 'ThruPlay' }
+};
+function rgba(hex, a) {
+  let h = String(hex || '#000').replace('#', '');
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  const n = parseInt(h, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+function glowSprite(hex, core) {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, `rgba(255,255,255,${core})`); gr.addColorStop(.16, rgba(hex, .95)); gr.addColorStop(.42, rgba(hex, .32)); gr.addColorStop(1, rgba(hex, 0));
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return c;
+}
+
+/* ================= formatação ================= */
+const LOC = CONFIG.locale;
+const NF = {
+  int: new Intl.NumberFormat(LOC, { maximumFractionDigits: 0 }),
+  d1: new Intl.NumberFormat(LOC, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+  c0: new Intl.NumberFormat(LOC, { style: 'currency', currency: CONFIG.moeda, minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+  c2: new Intl.NumberFormat(LOC, { style: 'currency', currency: CONFIG.moeda, minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+  cK: new Intl.NumberFormat(LOC, { style: 'currency', currency: CONFIG.moeda, notation: 'compact', minimumFractionDigits: 0, maximumFractionDigits: 1 }),
+  p1: new Intl.NumberFormat(LOC, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+  p0: new Intl.NumberFormat(LOC, { style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+  pS: new Intl.NumberFormat(LOC, { style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: 0, signDisplay: 'exceptZero' }),
+  cp: new Intl.NumberFormat(LOC, { notation: 'compact', minimumFractionDigits: 0, maximumFractionDigits: 1 })
+};
+const ND = 'n/d';
+const fmt = {
+  int: v => NF.int.format(Math.round(v)),
+  money: v => NF.c0.format(v),
+  money2: v => NF.c2.format(v),
+  moneyK: v => NF.cK.format(v),
+  pct: v => NF.p1.format(v),
+  pct0: v => NF.p0.format(v),
+  pctS: v => NF.pS.format(v),
+  comp: v => NF.cp.format(v),
+  x: v => NF.d1.format(v) + 'x',
+  d1: v => NF.d1.format(v),
+  dm: d => d.toLocaleDateString(LOC, { day: '2-digit', month: '2-digit' }),
+  hm: d => d.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' }),
+  wd: d => d.toLocaleDateString(LOC, { weekday: 'short' }).replace('.', '')
+};
+
+/* ================= dados de demonstração =================
+   Gerados no navegador, de forma determinística por data.
+   Formato que o painel consome (o mesmo que os dados reais vão precisar ter):
+   campanhas[]: { id, fonte:'meta'|'google', objetivo:'leads'|'trafego'|'video', nome, tipo, status, orc (orçamento por dia),
+                  dias: { invest[], impressoes[], cliques[], leads[], visitas[], thruplays[] } alinhados com datas[] }
+   deals[]:     { id, campanhaId, fonte, valor, criadoEm, etapa, status:'aberto'|'ganho'|'perdido', fechadoEm, hist:[{ etapa, em }] }
+   seguidores[]: seguidores novos por dia na conta do Instagram (orgânico e pago juntos) */
+function hash(s) { let h = 2166136261 >>> 0; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mulberry(a) { return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const rngDe = chave => mulberry(hash(chave));
+function poisson(l, r) { if (!(l > 0)) return 0; const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= r(); } while (p > L && k < 400); return k - 1; }
+const inicioDoDia = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const somaDias = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const chaveDia = d => d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+
+const ETAPA_NOME = { novo: 'Novo', contato: 'Contato', qualificado: 'Qualificado', proposta: 'Proposta', negociacao: 'Negociação', ganho: 'Ganho', perdido: 'Perdido' };
+const ETAPAS_ABERTAS = ['novo', 'contato', 'qualificado', 'proposta', 'negociacao'];
+const ETAPAS_TODAS = [...ETAPAS_ABERTAS, 'ganho', 'perdido'];
+
+const DEFS = [
+  { id: 'm1', fonte: 'meta', objetivo: 'leads', nome: 'Leads · Arquitetos', tipo: 'Formulário instantâneo', status: 'ativa', orc: 110, cpm: 32, ctr: 0.012, cvr: 0.095, trend: 0.25, qual: 0.31, ticket: [2800, 6400] },
+  { id: 'm2', fonte: 'meta', objetivo: 'leads', nome: 'Leads · Designers de interiores', tipo: 'Formulário instantâneo', status: 'ativa', orc: 90, cpm: 28, ctr: 0.0105, cvr: 0.085, trend: 0.1, qual: 0.27, ticket: [2200, 5200] },
+  { id: 'm3', fonte: 'meta', objetivo: 'trafego', nome: 'Tráfego · Visitas ao perfil', tipo: 'Tráfego para o Instagram', status: 'ativa', orc: 35, cpm: 11, ctr: 0.018, cvr: 0, qual: 0, ticket: [0, 0] },
+  { id: 'm5', fonte: 'meta', objetivo: 'video', nome: 'Vídeo · Reels de cases', tipo: 'Reproduções de vídeo', status: 'ativa', orc: 42, cpm: 8.5, ctr: 0.005, tpr: 0.16, cvr: 0, qual: 0, ticket: [0, 0] },
+  { id: 'm4', fonte: 'meta', objetivo: 'leads', nome: 'Remarketing · Engajados 30 dias', tipo: 'Formulário instantâneo', status: 'pausada', pausaHa: 27, orc: 40, cpm: 44, ctr: 0.016, cvr: 0.12, qual: 0.36, ticket: [2600, 6000] },
+  { id: 'g1', fonte: 'google', objetivo: 'leads', nome: 'Pesquisa · Marketing para arquitetos', tipo: 'Rede de Pesquisa', status: 'ativa', orc: 85, cpc: 3.9, ctr: 0.064, cvr: 0.072, qual: 0.44, ticket: [3000, 7200] },
+  { id: 'g2', fonte: 'google', objetivo: 'leads', nome: 'Performance Max · Leads', tipo: 'Performance Max', status: 'pausada', pausaHa: 41, orc: 70, cpm: 17, ctr: 0.009, cvr: 0.052, qual: 0.3, ticket: [2400, 5600] }
+];
+
+function criarDeal(c, criado, dia, chave, agora) {
+  const r = rngDe('deal|' + chave);
+  const u = []; for (let k = 0; k < 12; k++) u.push(r());
+  const valor = Math.round((c.ticket[0] + u[0] * (c.ticket[1] - c.ticket[0])) / 100) * 100;
+  const passos = [
+    ['contato', c.fonte === 'google' ? 0.9 : 0.86, 0.05, 1.6],
+    ['qualificado', c.qual, 1, 6],
+    ['proposta', 0.55, 1, 5],
+    ['negociacao', 0.6, 2, 7],
+    ['ganho', 0.5, 2, 9]
+  ];
+  let t = criado, etapa = 'novo', status = 'aberto', fechadoEm = null;
+  const hist = [{ etapa: 'novo', em: t }];
+  for (let s = 0; s < passos.length; s++) {
+    const [prox, p, dmin, dmax] = passos[s];
+    const dt = (dmin + u[1 + s * 2] * (dmax - dmin)) * DAY;
+    if (u[2 + s * 2] < p) {
+      if (t + dt > agora) break;
+      t += dt; etapa = prox; hist.push({ etapa: prox, em: t });
+      if (prox === 'ganho') { status = 'ganho'; fechadoEm = t; }
+    } else {
+      const tp = t + dt * 1.3;
+      if (tp <= agora) { status = 'perdido'; fechadoEm = tp; hist.push({ etapa: 'perdido', em: tp, de: etapa }); }
+      break;
+    }
+  }
+  return { id: 0, campanhaId: c.id, fonte: c.fonte, valor, criadoEm: criado, dia, etapa, status, fechadoEm, hist };
+}
+
+function gerarDemo(agoraDate) {
+  const N = 90;
+  const agora = agoraDate.getTime();
+  const hoje = inicioDoDia(agoraDate);
+  const datas = Array.from({ length: N }, (_, i) => somaDias(hoje, i - (N - 1)));
+  const horasHoje = (agora - hoje.getTime()) / 3600000;
+  const fracHoje = clamp((horasHoje - 7.5) / 16, 0, 1);
+  const campanhas = [], deals = [];
+  for (const def of DEFS) {
+    const c = Object.assign({}, def);
+    c.pausaDia = def.pausaHa != null ? N - def.pausaHa : null;
+    c.pausaEm = c.pausaDia != null ? new Date(datas[c.pausaDia].getTime() + 10.5 * 3600000) : null;
+    c.dias = {}; for (const k of ['invest', 'impressoes', 'cliques', 'leads', 'visitas', 'thruplays']) c.dias[k] = new Array(N).fill(0);
+    c.ativoDia = new Array(N).fill(0);
+    for (let i = 0; i < N; i++) {
+      if (c.pausaDia != null && i >= c.pausaDia) continue;
+      const frac = i === N - 1 ? fracHoje : 1;
+      c.ativoDia[i] = frac;
+      if (frac <= 0) continue;
+      const r = rngDe(c.id + '|' + chaveDia(datas[i]));
+      const dow = datas[i].getDay();
+      const fds = dow === 0 || dow === 6;
+      const prog = i / (N - 1);
+      const invest = Math.round(c.orc * (0.9 + r() * 0.14) * (fds ? 0.96 : 1) * frac * 100) / 100;
+      let impr, cliq;
+      if (c.cpc) {
+        const cpc = c.cpc * (0.85 + r() * 0.3);
+        cliq = Math.round(invest / cpc);
+        const ctr = c.ctr * (0.85 + r() * 0.3);
+        impr = Math.round(cliq / ctr);
+      } else {
+        const cpm = c.cpm * (0.85 + r() * 0.3);
+        impr = Math.round(invest / cpm * 1000);
+        const ctr = c.ctr * (0.85 + r() * 0.3) * (1 + (c.trend || 0) * prog);
+        cliq = Math.round(impr * ctr);
+      }
+      const leads = c.cvr > 0 ? poisson(cliq * c.cvr * (fds ? 0.78 : 1), r) : 0;
+      c.dias.invest[i] = invest; c.dias.impressoes[i] = impr; c.dias.cliques[i] = cliq; c.dias.leads[i] = leads;
+      if (c.objetivo === 'trafego') c.dias.visitas[i] = cliq;
+      if (c.tpr) c.dias.thruplays[i] = Math.round(impr * c.tpr * (0.85 + r() * 0.3));
+      const maxH = i === N - 1 ? clamp(horasHoje, 7.5, 23.5) : 23.5;
+      for (let j = 0; j < leads; j++) {
+        const h = 7.5 + r() * (maxH - 7.5);
+        deals.push(criarDeal(c, datas[i].getTime() + h * 3600000, i, c.id + '|' + chaveDia(datas[i]) + '|' + j, agora));
+      }
+    }
+    campanhas.push(c);
+  }
+  const seguidores = new Array(N).fill(0);
+  for (let i = 0; i < N; i++) {
+    const frac = i === N - 1 ? fracHoje : 1;
+    if (frac <= 0) continue;
+    const r = rngDe('ig|' + chaveDia(datas[i]));
+    const dow = datas[i].getDay(), fds = dow === 0 || dow === 6;
+    let vis = 0, tp = 0; for (const c of campanhas) { vis += c.dias.visitas[i]; tp += c.dias.thruplays[i]; }
+    seguidores[i] = poisson(4.2 * (fds ? 1.15 : 1) * frac + vis * 0.03 + tp * 0.0045, r);
+  }
+  deals.sort((a, b) => a.criadoEm - b.criadoEm);
+  deals.forEach((d, k) => { d.id = 4100 + k; });
+  return { datas, agora, fracHoje, campanhas, deals, seguidores };
+}
+
+const DATA = gerarDemo(new Date());
+const CAMP = Object.fromEntries(DATA.campanhas.map(c => [c.id, c]));
+
+/* ================= estado dos filtros ================= */
+const S = { periodo: 30, fontes: { meta: true, google: true }, pausadas: false, sel: new Set(DATA.campanhas.filter(c => c.status === 'ativa').map(c => c.id)) };
+const STORE = 'hub-lead-command:filtros:v2';
+try {
+  const raw = localStorage.getItem(STORE);
+  if (raw) {
+    const o = JSON.parse(raw);
+    if ([7, 14, 30, 90].includes(o.periodo)) S.periodo = o.periodo;
+    if (o.fontes) S.fontes = { meta: o.fontes.meta !== false, google: o.fontes.google !== false };
+    S.pausadas = !!o.pausadas;
+    if (Array.isArray(o.sel)) { const s = o.sel.filter(id => CAMP[id]); if (s.length) S.sel = new Set(s); }
+  }
+} catch (e) { /* sem armazenamento: segue com o padrão */ }
+function salvar() { try { localStorage.setItem(STORE, JSON.stringify({ periodo: S.periodo, fontes: S.fontes, pausadas: S.pausadas, sel: [...S.sel] })); } catch (e) { /* ignora */ } }
+
+/* ================= cálculo ================= */
+const chegou = (d, e) => d.hist.some(h => h.etapa === e);
+const CHAVES = ['invest', 'impressoes', 'cliques', 'leads', 'visitas', 'thruplays'];
+
+function computar() {
+  const N = DATA.datas.length, p = S.periodo;
+  const win = { a: N - p, b: N - 1 };
+  const winPrev = N - 2 * p >= 0 ? { a: N - 2 * p, b: N - p - 1 } : null;
+  const visiveis = DATA.campanhas.filter(c => S.fontes[c.fonte] && (c.status === 'ativa' || S.pausadas));
+  const sel = visiveis.filter(c => S.sel.has(c.id));
+  const selLead = sel.filter(c => c.objetivo === 'leads');
+  const selIds = new Set(sel.map(c => c.id));
+  const fontesLead = new Set(selLead.map(c => c.fonte));
+
+  const somar = (w, lista) => {
+    if (!w) return null;
+    const z = () => Object.fromEntries(CHAVES.map(k => [k, 0]));
+    const o = Object.assign(z(), { meta: z(), google: z() });
+    for (const c of lista) for (let i = w.a; i <= w.b; i++) for (const k of CHAVES) { const v = c.dias[k][i]; o[k] += v; o[c.fonte][k] += v; }
+    return o;
+  };
+  const T = somar(win, sel), TP = somar(winPrev, sel);
+  const TL = somar(win, selLead), TLP = somar(winPrev, selLead);
+  const cpl = TL.leads > 0 ? TL.invest / TL.leads : null;
+  const cplPrev = TLP && TLP.leads > 0 ? TLP.invest / TLP.leads : null;
+
+  const dias = [];
+  for (let i = win.a; i <= win.b; i++) {
+    const d = { i, data: DATA.datas[i], hoje: i === N - 1, leads: { meta: 0, google: 0 }, investLead: 0, cpl7: { meta: null, google: null }, cpl7Total: null, qual: 0, vendas: 0, receita: 0, visitas: 0, thruplays: 0, seguidores: DATA.seguidores[i] };
+    for (const c of selLead) { d.leads[c.fonte] += c.dias.leads[i]; d.investLead += c.dias.invest[i]; }
+    for (const c of sel) { d.visitas += c.dias.visitas[i]; d.thruplays += c.dias.thruplays[i]; }
+    const inv = { meta: 0, google: 0 }, ld = { meta: 0, google: 0 };
+    for (let k = Math.max(0, i - 6); k <= i; k++) for (const c of selLead) { inv[c.fonte] += c.dias.invest[k]; ld[c.fonte] += c.dias.leads[k]; }
+    for (const f of ['meta', 'google']) if (fontesLead.has(f) && ld[f] > 0) d.cpl7[f] = inv[f] / ld[f];
+    const lt = ld.meta + ld.google;
+    d.cpl7Total = lt > 0 ? (inv.meta + inv.google) / lt : null;
+    dias.push(d);
+  }
+
+  // Pipedrive: negócios criados no período, vindos das campanhas selecionadas
+  const t0 = DATA.datas[win.a].getTime();
+  const coorte = DATA.deals.filter(d => selIds.has(d.campanhaId) && d.criadoEm >= t0);
+  const z3 = () => ({ total: 0, meta: 0, google: 0 });
+  const funil = { impressoes: TL.impressoes, cliques: TL.cliques, leads: TL.leads, qual: z3(), prop: z3(), vendas: z3() };
+  const pipe = {}; for (const k of ETAPAS_TODAS) pipe[k] = { n: 0, valor: 0, meta: 0, google: 0, parados: 0 };
+  let receita = 0, ciclo = 0, abertos = 0, valorAberto = 0, parados = 0;
+  const diaDe = t => Math.floor((t - t0) / DAY);
+  for (const d of coorte) {
+    const hq = d.hist.find(h => h.etapa === 'qualificado');
+    if (hq) { funil.qual.total++; funil.qual[d.fonte]++; const di = diaDe(hq.em); if (di >= 0 && di < dias.length) dias[di].qual++; }
+    if (chegou(d, 'proposta')) { funil.prop.total++; funil.prop[d.fonte]++; }
+    const k = d.status === 'aberto' ? d.etapa : d.status;
+    pipe[k].n++; pipe[k].valor += d.valor; pipe[k][d.fonte]++;
+    if (d.status === 'ganho') {
+      funil.vendas.total++; funil.vendas[d.fonte]++; receita += d.valor; ciclo += (d.fechadoEm - d.criadoEm) / DAY;
+      const di = diaDe(d.fechadoEm); if (di >= 0 && di < dias.length) { dias[di].vendas++; dias[di].receita += d.valor; }
+    }
+    if (d.status === 'aberto') {
+      abertos++; valorAberto += d.valor;
+      if ((DATA.agora - d.hist[d.hist.length - 1].em) / DAY >= 7) { pipe[d.etapa].parados++; parados++; }
+    }
+  }
+  const vendas = funil.vendas.total;
+  const temLead = selLead.length > 0 && T.invest > 0;
+  const roi = {
+    receita, vendas, abertos, valorAberto, parados,
+    roas: temLead ? receita / T.invest : null,
+    roi: temLead ? (receita - T.invest) / T.invest : null,
+    custoVenda: vendas > 0 ? T.invest / vendas : null,
+    cpq: funil.qual.total > 0 ? TL.invest / funil.qual.total : null,
+    ticket: vendas > 0 ? receita / vendas : null,
+    ciclo: vendas > 0 ? ciclo / vendas : null,
+    leadVenda: coorte.length > 0 ? vendas / coorte.length : null,
+    pctAberto: coorte.length > 0 ? abertos / coorte.length : null
+  };
+
+  // audiência
+  const somaSerie = (arr, w) => { if (!w) return null; let s = 0; for (let i = w.a; i <= w.b; i++) s += arr[i]; return s; };
+  const selTraf = sel.filter(c => c.objetivo === 'trafego'), selVid = sel.filter(c => c.objetivo === 'video');
+  const AT = somar(win, selTraf), AV = somar(win, selVid);
+  const aud = {
+    seguidores: somaSerie(DATA.seguidores, win), seguidoresPrev: somaSerie(DATA.seguidores, winPrev),
+    visitas: T.visitas, visitasPrev: TP ? TP.visitas : null, investTrafego: AT.invest,
+    thruplays: T.thruplays, thruplaysPrev: TP ? TP.thruplays : null, investVideo: AV.invest, imprVideo: AV.impressoes,
+    invest: AT.invest + AV.invest, impressoes: AT.impressoes + AV.impressoes,
+    temTrafego: selTraf.length > 0, temVideo: selVid.length > 0
+  };
+  const porObjetivo = ['leads', 'trafego', 'video'].filter(o => sel.some(c => c.objetivo === o)).map(o => {
+    const cs = sel.filter(c => c.objetivo === o), s = somar(win, cs);
+    const res = o === 'leads' ? s.leads : o === 'trafego' ? s.visitas : s.thruplays;
+    return { o, n: cs.length, invest: s.invest, res, custo: res > 0 ? s.invest / res : null };
+  });
+
+  // eventos do período, lidos do histórico dos negócios
+  const eventos = [];
+  for (const d of DATA.deals) {
+    if (!selIds.has(d.campanhaId)) continue;
+    const c = CAMP[d.campanhaId];
+    for (const h of d.hist) {
+      if (h.em < t0 || h.em > DATA.agora) continue;
+      let kind, msg, cls = '';
+      switch (h.etapa) {
+        case 'novo': kind = 'Lead'; msg = `Novo lead #${d.id} · ${c.nome}`; break;
+        case 'ganho': kind = 'Venda'; cls = 'win'; msg = `#${d.id} fechou ${fmt.money(d.valor)} · ${c.nome}`; break;
+        case 'perdido': kind = 'Perdido'; cls = 'lost'; msg = `#${d.id} perdido na etapa ${ETAPA_NOME[h.de]}`; break;
+        case 'proposta': kind = 'Proposta'; msg = `#${d.id} recebeu proposta de ${fmt.money(d.valor)}`; break;
+        default: kind = ETAPA_NOME[h.etapa]; msg = `#${d.id} movido para ${ETAPA_NOME[h.etapa]}`;
+      }
+      eventos.push({ t: h.em, kind, cls, fonte: d.fonte, msg });
+    }
+  }
+  for (const c of sel) {
+    if (c.pausaEm) { const t = c.pausaEm.getTime(); if (t >= t0 && t <= DATA.agora) eventos.push({ t, kind: 'Campanha', cls: '', fonte: c.fonte, msg: `${c.nome} pausada` }); }
+  }
+  eventos.sort((a, b) => a.t - b.t);
+
+  const cards = sel.map(c => {
+    const s = Object.fromEntries(CHAVES.map(k => [k, 0]));
+    let ativo = 0; const serie = [];
+    const chaveSerie = c.objetivo === 'leads' ? 'leads' : c.objetivo === 'trafego' ? 'visitas' : 'thruplays';
+    for (let i = win.a; i <= win.b; i++) {
+      for (const k of CHAVES) s[k] += c.dias[k][i];
+      ativo += c.ativoDia[i];
+      serie.push(c.dias[chaveSerie][i]);
+    }
+    const cd = coorte.filter(d => d.campanhaId === c.id);
+    const v = cd.filter(d => d.status === 'ganho');
+    return { c, s, serie, orcPeriodo: c.orc * ativo, q: cd.filter(d => chegou(d, 'qualificado')).length, vendas: v.length, receita: v.reduce((a, d) => a + d.valor, 0) };
+  });
+
+  return { periodo: p, win, visiveis, sel, selLead, fontesLead, T, TP, TL, TLP, cpl, cplPrev, dias, funil, pipe, roi, aud, porObjetivo, eventos, cards, coorte, coorteN: coorte.length };
+}
+
+/* ================= efeitos de número ================= */
+function countTo(elm, v, f, anim, delay) {
+  elm._tok = (elm._tok || 0) + 1; const tk = elm._tok;
+  if (v == null || !isFinite(v)) { elm.textContent = ND; elm._v = null; return; }
+  const from = elm._v != null && isFinite(elm._v) ? elm._v : 0;
+  elm._v = v;
+  if (!anim || REDUCED) { elm.textContent = f(v); return; }
+  const t0 = performance.now() + (delay || 0), D = 1100;
+  const step = now => {
+    if (elm._tok !== tk) return;
+    const p = clamp((now - t0) / D, 0, 1);
+    elm.textContent = f(lerp(from, v, ease.out(p)));
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function spot(elm) {
+  if (!FINE || REDUCED) return;
+  elm.addEventListener('pointermove', e => { const r = elm.getBoundingClientRect(); elm.style.setProperty('--mx', (e.clientX - r.left) + 'px'); elm.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
+}
+function tilt(elm) {
+  if (!FINE || REDUCED) return;
+  elm.addEventListener('pointermove', e => { const r = elm.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; elm.style.transform = `perspective(900px) rotateX(${(-y * 4).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg)`; });
+  elm.addEventListener('pointerleave', () => { elm.style.transform = ''; });
+}
+function vazio(msg) { return el('div', 'empty', msg); }
+function niceMax(v, n, inteiro) {
+  if (!(v > 0)) return { max: n, step: 1 };
+  const raw = v / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
+  let step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag;
+  if (inteiro) step = step < 1 ? 1 : Math.ceil(step);
+  return { max: step * Math.ceil(v / step - 1e-9), step };
+}
+function msgVazio(ctx, W, H, t) {
+  ctx.fillStyle = COL.ink3; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `500 12px ${SANS}`;
+  ctx.fillText(t, W / 2, H / 2);
+}
+function larguraTicks(ctx, sc, f) {
+  let w = 0;
+  for (let v = 0; v <= sc.max + 1e-6; v += sc.step) w = Math.max(w, ctx.measureText(f(v)).width);
+  return w;
+}
+function prepCanvas(cv, w, h, cap) {
+  const dpr = Math.min(window.devicePixelRatio || 1, cap || 2);
+  cv.width = Math.max(1, Math.round(w * dpr)); cv.height = Math.max(1, Math.round(h * dpr));
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return ctx;
+}
+function sparkline(cv, vals, color, anim) {
+  const w = cv.clientWidth || 100, h = cv.clientHeight || 40;
+  const ctx = prepCanvas(cv, w, h);
+  cv._tok = (cv._tok || 0) + 1; const token = cv._tok;
+  const pts = []; vals.forEach((v, i) => { if (v != null && isFinite(v)) pts.push([i, v]); });
+  ctx.clearRect(0, 0, w, h);
+  if (pts.length < 2) return;
+  let min = Infinity, max = -Infinity; for (const [, v] of pts) { if (v < min) min = v; if (v > max) max = v; }
+  min = Math.min(min, 0);
+  const span = max - min || 1, n = vals.length;
+  const X = i => 3 + (w - 8) * (n > 1 ? i / (n - 1) : .5);
+  const Y = v => h - 3 - (v - min) / span * (h - 8);
+  const D = anim && !REDUCED ? 900 : 0, t0 = performance.now();
+  const frame = now => {
+    if (cv._tok !== token) return;
+    const p = D ? clamp((now - t0) / D, 0, 1) : 1;
+    const upto = pts[0][0] + (pts[pts.length - 1][0] - pts[0][0]) * ease.out(p);
+    ctx.clearRect(0, 0, w, h);
+    const vis = pts.filter(q => q[0] <= upto + 1e-6);
+    if (vis.length >= 2) {
+      const path = () => { ctx.beginPath(); vis.forEach(([i, v], k) => { k ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)); }); };
+      path(); ctx.lineTo(X(vis[vis.length - 1][0]), h); ctx.lineTo(X(vis[0][0]), h); ctx.closePath();
+      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, rgba(color, .2)); g.addColorStop(1, rgba(color, 0));
+      ctx.fillStyle = g; ctx.fill();
+      path(); ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.shadowColor = rgba(color, .6); ctx.shadowBlur = 6; ctx.stroke(); ctx.shadowBlur = 0;
+      if (p >= 1) {
+        const [li, lv] = vis[vis.length - 1];
+        ctx.beginPath(); ctx.arc(X(li), Y(lv), 4, 0, TAU); ctx.fillStyle = COL.surface; ctx.fill();
+        ctx.beginPath(); ctx.arc(X(li), Y(lv), 2.4, 0, TAU); ctx.fillStyle = color; ctx.fill();
+      }
+    }
+    if (p < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+
+/* ================= órbita do pipeline ================= */
+function criarOrbita() {
+  const stageEl = $('#stage3d'), cv = $('#orbit'), tip = $('#otip');
+  const RINGS = [{ k: 'novo', r: 9.5 }, { k: 'contato', r: 7.95 }, { k: 'qualificado', r: 6.45 }, { k: 'proposta', r: 5.0 }, { k: 'negociacao', r: 3.6 }];
+  const IDX = { novo: 0, contato: 1, qualificado: 2, proposta: 3, negociacao: 4 };
+  const RC = COL.st;
+  const RB = 10.7, RCORE = 1.12, D0 = 30;
+  const st = {
+    ctx: null, W: 0, H: 0, visible: true,
+    yaw: -.65, yawV: 0, elev: .5, elevT: .5, elevSet: false, D: D0, f: 600, cx: 0, cy: 0, top: 96, bottom: 24,
+    dots: new Map(), t0: 0, t1: 0, tSim: 0,
+    replay: null, intro: null, introQ: 1,
+    hover: null, pin: null, hl: null, hlFrom: null, drag: null, lastInt: 0,
+    flash: 0, shocks: [], labels: [], counts: [0, 0, 0, 0, 0], wonSim: 0, recSim: 0,
+    dust: [], comets: [], sweep: 0, dustN: 0
+  };
+  const SPR = { meta: glowSprite(COL.meta, .95), google: glowSprite(COL.google, .95), won: glowSprite('#dffcf6', 1), bad: glowSprite(COL.bad, .7), teal: glowSprite(COL.accent, .8) };
+  const PHI = (1 + Math.sqrt(5)) / 2;
+  const IV = [[-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0], [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI], [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1]]
+    .map(v => { const n = Math.hypot(v[0], v[1], v[2]); return v.map(c => c / n); });
+  const IE = [];
+  for (let a = 0; a < 12; a++) for (let b = a + 1; b < 12; b++) if (Math.hypot(IV[a][0] - IV[b][0], IV[a][1] - IV[b][1], IV[a][2] - IV[b][2]) < 1.1) IE.push([a, b]);
+
+  function initDust(n) {
+    const r = rngDe('poeira');
+    st.dust = Array.from({ length: n }, () => { const rr = Math.sqrt(r()) * 12.8; return { r: rr, th: r() * TAU, y: (r() - .5) * 1.8 * (1 - rr / 15), w: .015 + r() * .03, s: .6 + r() * .9, a: .25 + r() * .5 }; });
+    st.dustN = n;
+  }
+  st.comets = [{ k: 0, th: 0, sp: .8, tr: [] }, { k: 2, th: 3, sp: 1.1, tr: [] }];
+
+  let cY = 1, sY = 0, cE = 1, sE = 0;
+  function projV(x1, y, z1) { const y2 = y * cE - z1 * sE, z2 = y * sE + z1 * cE, s = st.f / (st.D - z2); return { x: st.cx + x1 * s, y: st.cy - y2 * s, s, z: z2 }; }
+  function proj(x, y, z) { return projV(x * cY - z * sY, y, x * sY + z * cY); }
+
+  function resize() {
+    const r = stageEl.getBoundingClientRect();
+    if (r.width < 10 || r.height < 10) return;
+    st.W = Math.round(r.width); st.H = Math.round(r.height);
+    st.ctx = prepCanvas(cv, st.W, st.H, st.W < 700 ? 1.75 : 2);
+    const mobile = st.W < 560;
+    const ask = $('#ask');
+    const overlay = ask && !ask.hidden && getComputedStyle(ask).position === 'absolute';
+    const ov = stageEl.querySelector('.ov-top').getBoundingClientRect();
+    const rp = $('#replay'), rr = rp.hidden ? null : rp.getBoundingClientRect();
+    let top = ov.bottom - r.top + 10, bottom = mobile ? 18 : 22;
+    if (rr && rr.height) {
+      if (rr.top - r.top < r.height / 2) top = Math.max(top, rr.bottom - r.top + 10);
+      else bottom = Math.max(bottom, r.bottom - rr.top + 10);
+    }
+    if (overlay) bottom = Math.max(bottom, ask.offsetHeight + 30);
+    st.top = top; st.bottom = bottom;
+    if (!st.elevSet) {
+      const avail = Math.max(120, st.H - top - bottom);
+      st.elevT = Math.asin(clamp(.78 * avail / (.91 * st.W), Math.sin(.42), Math.sin(.7)));
+      if (!st.intro) st.elev = st.elevT;
+    }
+    const want = mobile ? 150 : 360;
+    if (st.dustN !== want) initDust(want);
+  }
+  function fit() {
+    const se = Math.sin(st.elev), ce = Math.cos(st.elev), R = RB + .35;
+    const kT = R * se / (D0 + R * ce), kB = R * se / (D0 - R * ce);
+    const avail = Math.max(120, st.H - st.top - st.bottom);
+    const fW = st.W * .455 * D0 / R, fH = (avail - 36) / (kT + kB);
+    st.f = Math.max(60, Math.min(fW, fH));
+    st.cx = st.W / 2;
+    st.cy = st.top + 36 + kT * st.f + Math.max(0, (avail - 36 - (kT + kB) * st.f) / 2);
+  }
+  function alvo(dot, t) {
+    const d = dot.d;
+    if (dot.gone) return { kind: dot.kind, r: dot.r, a: 0, e: dot.e, em: dot.em };
+    if (t < d.criadoEm) return { kind: 'pre', r: RB + 1.4, a: 0 };
+    let e = 'novo', em = d.criadoEm;
+    for (const h of d.hist) { if (h.em <= t) { e = h.etapa; em = h.em; } else break; }
+    if (e === 'ganho') return { kind: 'won', r: dot.rr, a: 1, e, em };
+    if (e === 'perdido') return { kind: 'lost', r: RB + 1.8, a: 0, e, em };
+    return { kind: 'open', k: IDX[e], r: RINGS[IDX[e]].r + dot.jit, a: 1, e, em };
+  }
+  function setData(V, opts) {
+    const o = opts || {};
+    st.t0 = DATA.datas[V.win.a].getTime(); st.t1 = DATA.agora;
+    const ids = new Set();
+    for (const d of V.coorte) {
+      ids.add(d.id);
+      let dot = st.dots.get(d.id);
+      if (!dot) {
+        const r = rngDe('orb|' + d.id);
+        dot = { d, th: r() * TAU, jit: (r() - .5) * .5, ph: r() * 6.28, vf: 0, r: RB + 1.4, a: 0, kind: 'pre', gone: false, tilt: .4 + r() * .9, rr: 1.75 + r() * .75, pend: false, sx: -99, sy: -99, ps: 1, pz: 0, vis: false, e: 'novo', em: d.criadoEm };
+        st.dots.set(d.id, dot);
+      }
+      dot.d = d; dot.gone = false; dot.vf = clamp((d.valor - 2200) / 5000, 0, 1);
+    }
+    for (const [id, dot] of st.dots) if (!ids.has(id)) dot.gone = true;
+    if (o.snap || REDUCED) {
+      for (const [id, dot] of st.dots) {
+        if (dot.gone) { st.dots.delete(id); continue; }
+        const t = alvo(dot, st.t1); dot.kind = t.kind; dot.r = t.r; dot.a = t.a; dot.e = t.e; dot.em = t.em; dot.pend = false;
+      }
+    }
+    const nomes = ETAPAS_ABERTAS.map(k => `${ETAPA_NOME[k]} ${V.pipe[k].n}`).join(', ');
+    cv.setAttribute('aria-label', `Órbita do pipeline, leads dos últimos ${V.periodo} dias: ${nomes}. ${V.funil.vendas.total} vendas no núcleo, ${fmt.money(V.roi.receita)}.`);
+    $('#orbitSub').textContent = `Leads dos últimos ${V.periodo} dias em cada etapa · ${FINE ? 'arraste para girar' : 'toque e arraste para girar'}`;
+    if (REDUCED) requestAnimationFrame(() => draw(performance.now(), 0));
+  }
+  function replayUI(p) {
+    const btn = $('#btnReplay'), bar = $('#rbar'), lbl = $('#rdate');
+    if (p == null) { bar.style.width = '0%'; lbl.textContent = ''; btn.querySelector('span').textContent = 'Replay do período'; return; }
+    bar.style.width = (p * 100).toFixed(1) + '%'; lbl.textContent = fmt.dm(new Date(st.tSim)); btn.querySelector('span').textContent = 'Pular replay';
+  }
+  function iniciarReplay(delay) {
+    if (REDUCED) return;
+    st.replay = { start: performance.now() + (delay || 0), dur: 6500, p: 0 };
+    for (const dot of st.dots.values()) { if (dot.gone) continue; dot.kind = 'pre'; dot.r = RB + 1.4; dot.a = 0; dot.pend = false; }
+  }
+  function iniciarIntro() { if (REDUCED) return; st.intro = performance.now(); st.introQ = 0; }
+  function atualizarDots(now, dt, tSim) {
+    const counts = [0, 0, 0, 0, 0]; let won = 0, rec = 0;
+    for (const [id, dot] of st.dots) {
+      const t = alvo(dot, tSim);
+      if (t.kind !== dot.kind) { if (t.kind === 'won' && !REDUCED) dot.pend = true; dot.kind = t.kind; }
+      dot.e = t.e; dot.em = t.em;
+      const kr = 1 - Math.exp(-dt * (t.kind === 'lost' ? 1.05 : t.kind === 'won' ? 2.1 : 3.3));
+      const ka = 1 - Math.exp(-dt * (t.kind === 'lost' || dot.gone ? 1.25 : 4.5));
+      dot.r += (t.r - dot.r) * kr; dot.a += (t.a - dot.a) * ka;
+      if (dot.gone && dot.a < .01) { st.dots.delete(id); continue; }
+      if (!REDUCED) dot.th += (dot.kind === 'won' ? 1.2 : .95 / Math.pow(Math.max(dot.r, 2.2), .95)) * dt;
+      if (dot.pend && dot.r < dot.rr + .55) { dot.pend = false; st.flash = 1; st.shocks.push(now); }
+      if (dot.gone) continue;
+      if (dot.kind === 'open') counts[t.k]++;
+      else if (dot.kind === 'won') { won++; rec += dot.d.valor; }
+    }
+    st.counts = counts; st.wonSim = won; st.recSim = rec;
+  }
+  function ringFrac(k) { return st.intro ? clamp((st.introQ - .1 - k * .06) / .5, 0, 1) : 1; }
+  function anel(ctx, r, color, alpha, lw, frac, glow) {
+    const SEG = 96, last = Math.round(SEG * frac);
+    if (last <= 0) return;
+    const pts = []; for (let i = 0; i <= last; i++) { const a = i / SEG * TAU - 1.2 - st.yaw; pts.push(proj(Math.cos(a) * r, 0, Math.sin(a) * r)); }
+    if (glow) { ctx.shadowColor = color; ctx.shadowBlur = 10; }
+    for (let c = 0; c < last; c += 8) {
+      const mid = pts[Math.min(c + 4, last)], front = clamp((mid.z / (r * cE + 1e-6) + 1) / 2, 0, 1);
+      ctx.strokeStyle = rgba(color, alpha * (.25 + .75 * front)); ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.moveTo(pts[c].x, pts[c].y);
+      for (let i = c + 1; i <= Math.min(c + 8, last); i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+  }
+  function desenharDots(ctx, list, now) {
+    ctx.globalCompositeOperation = 'lighter';
+    for (const dot of list) {
+      const mine = st.hl != null && dot.kind === 'open' && IDX[dot.e] === st.hl;
+      let alpha = dot.a * (st.hl != null && !mine ? .16 : 1);
+      alpha *= .55 + .45 * clamp((dot.pz / 11 + 1) / 2, 0, 1);
+      const spr = dot.kind === 'won' ? SPR.won : dot.kind === 'lost' ? SPR.bad : SPR[dot.d.fonte];
+      const rpx = (.085 + .055 * dot.vf) * dot.ps * (dot.kind === 'won' ? 1.4 : 1) * (mine ? 1.35 : 1) * (st.hover === dot || st.pin === dot ? 1.5 : 1);
+      const size = Math.max(5, rpx * 9);
+      ctx.globalAlpha = clamp(alpha, 0, 1);
+      ctx.drawImage(spr, dot.sx - size / 2, dot.sy - size / 2, size, size);
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    for (const dot of list) {
+      if (dot.kind !== 'open' || dot.a < .5 || st.replay) continue;
+      if ((st.tSim - dot.em) / DAY < 7) continue;
+      const rr = (.085 + .055 * dot.vf) * dot.ps * 2.6, pul = REDUCED ? .6 : .45 + .35 * Math.sin(now / 500 + dot.ph);
+      ctx.strokeStyle = rgba(COL.bad, pul * (st.hl != null && IDX[dot.e] !== st.hl ? .25 : 1)); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(dot.sx, dot.sy, Math.max(4, rr), 0, TAU); ctx.stroke();
+    }
+    for (const dot of list) {
+      if (dot !== st.hover && dot !== st.pin) continue;
+      ctx.strokeStyle = 'rgba(240,255,252,.9)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(dot.sx, dot.sy, Math.max(7, dot.ps * .45), 0, TAU); ctx.stroke();
+    }
+  }
+  function desenharNucleo(ctx, o, now, dt) {
+    const sc = st.intro ? ease.back(clamp((st.introQ - .15) / .6, 0, 1)) : 1;
+    const rc = RCORE * o.s * sc;
+    if (rc <= .5) return;
+    st.flash = Math.max(0, st.flash - dt * 1.5);
+    const pul = REDUCED ? .5 : .5 + .5 * Math.sin(now / 1000 * 2.1);
+    const R1 = rc * (4.4 + 1.8 * st.flash);
+    ctx.globalCompositeOperation = 'lighter';
+    const g1 = ctx.createRadialGradient(o.x, o.y, rc * .5, o.x, o.y, R1);
+    g1.addColorStop(0, `rgba(94,234,212,${(.3 + .07 * pul + .4 * st.flash).toFixed(3)})`); g1.addColorStop(1, 'rgba(94,234,212,0)');
+    ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(o.x, o.y, R1, 0, TAU); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    const g2 = ctx.createRadialGradient(o.x - rc * .35, o.y - rc * .42, rc * .08, o.x, o.y, rc);
+    g2.addColorStop(0, '#f3fffd'); g2.addColorStop(.3, '#8ff5e4'); g2.addColorStop(.72, '#138a7b'); g2.addColorStop(1, '#073b35');
+    ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(o.x, o.y, rc, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(210,255,248,.35)'; ctx.lineWidth = 1; ctx.stroke();
+    const t = REDUCED ? 0 : now / 1000, ca = Math.cos(t * .5), sa = Math.sin(t * .5), cb = Math.cos(t * .31), sb = Math.sin(t * .31);
+    const R = RCORE * 1.55 * sc;
+    const pv = IV.map(([x, y, z]) => { const x1 = x * ca - z * sa, z1 = x * sa + z * ca, y1 = y * cb - z1 * sb, z2 = y * sb + z1 * cb; return proj(x1 * R, y1 * R, z2 * R); });
+    ctx.lineWidth = 1;
+    for (const [a, b] of IE) { const zz = (pv[a].z + pv[b].z) / 2; ctx.strokeStyle = zz >= 0 ? 'rgba(150,245,230,.42)' : 'rgba(150,245,230,.13)'; ctx.beginPath(); ctx.moveTo(pv[a].x, pv[a].y); ctx.lineTo(pv[b].x, pv[b].y); ctx.stroke(); }
+    ctx.globalCompositeOperation = 'lighter';
+    for (const p of pv) { ctx.globalAlpha = p.z >= 0 ? .85 : .3; ctx.drawImage(SPR.teal, p.x - 3.5, p.y - 3.5, 7, 7); }
+    ctx.globalAlpha = 1;
+    if (st.flash > .02) {
+      const hgt = rc * 8 * st.flash, lg = ctx.createLinearGradient(o.x, o.y - rc, o.x, o.y - rc - hgt);
+      lg.addColorStop(0, `rgba(200,255,246,${(.65 * st.flash).toFixed(3)})`); lg.addColorStop(1, 'rgba(200,255,246,0)');
+      ctx.fillStyle = lg; ctx.fillRect(o.x - 1.5, o.y - rc - hgt, 3, hgt);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    st.shocks = st.shocks.filter(s0 => now - s0 < 1300);
+    for (const s0 of st.shocks) {
+      const a = (now - s0) / 1300, r = RCORE + a * 7.5;
+      ctx.strokeStyle = `rgba(160,250,235,${((1 - a) * .55).toFixed(3)})`; ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      for (let i = 0; i <= 56; i++) { const an = i / 56 * TAU, p = proj(Math.cos(an) * r, 0, Math.sin(an) * r); i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }
+      ctx.stroke();
+    }
+  }
+  function desenharRotulos(ctx, o) {
+    st.labels = [];
+    const psi = st.W < 560 ? 2.0 : 2.4, H = 21, L = [];
+    RINGS.forEach((rg, k) => {
+      if (ringFrac(k) < .98) return;
+      const p = projV(Math.cos(psi) * rg.r, 0, Math.sin(psi) * rg.r);
+      const name = ETAPA_NOME[rg.k], cnt = fmt.int(st.counts[k] || 0);
+      ctx.font = `500 11px ${SANS}`; const w1 = ctx.measureText(name).width;
+      ctx.font = `600 11.5px ${SANS}`; const w2 = ctx.measureText(cnt).width;
+      L.push({ k, p, name, cnt, w1, w: w1 + w2 + 22, y: p.y - H / 2 });
+    });
+    if (L.length) {
+      // separa os rótulos na vertical e recentra o grupo nas âncoras
+      L.sort((a, b) => a.y - b.y);
+      const alvoMedio = L.reduce((s, l) => s + l.y, 0) / L.length;
+      for (let i = 1; i < L.length; i++) if (L[i].y < L[i - 1].y + H + 4) L[i].y = L[i - 1].y + H + 4;
+      const sh = alvoMedio - L.reduce((s, l) => s + l.y, 0) / L.length;
+      L.forEach(l => { l.y = clamp(l.y + sh, 4, st.H - H - 4); });
+      const xr = Math.min(...L.map(l => l.p.x)) - 16;
+      ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      for (const l of L) {
+        const x = Math.max(4, xr - l.w), y = l.y, cy = y + H / 2, hl = st.hl === l.k, col = RC[l.k];
+        ctx.strokeStyle = rgba(col, .7); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x + l.w, cy + .5); ctx.lineTo(l.p.x - 3, l.p.y); ctx.stroke();
+        ctx.fillStyle = hl ? 'rgba(16,52,48,.95)' : 'rgba(5,10,12,.82)'; roundRect(ctx, x, y, l.w, H, 10.5); ctx.fill();
+        ctx.strokeStyle = hl ? rgba(COL.accent, .7) : rgba(col, .6); ctx.stroke();
+        ctx.fillStyle = COL.ink2; ctx.font = `500 11px ${SANS}`; ctx.fillText(l.name, x + 8, cy + .5);
+        ctx.fillStyle = COL.ink; ctx.font = `600 11.5px ${SANS}`; ctx.fillText(l.cnt, x + 14 + l.w1, cy + .5);
+        ctx.fillStyle = hl ? COL.accent : col; ctx.beginPath(); ctx.arc(l.p.x, l.p.y, 2.4, 0, TAU); ctx.fill();
+        st.labels.push({ k: l.k, x, y, w: l.w, h: H });
+      }
+    }
+    if (st.intro && st.introQ < .6) return;
+    const rc = RCORE * o.s;
+    const t1 = `${fmt.int(st.wonSim)} ${st.wonSim === 1 ? 'venda' : 'vendas'}`, t2 = fmt.money(st.recSim);
+    ctx.textAlign = 'center';
+    ctx.font = `600 12px ${SANS}`; const wa = ctx.measureText(t1).width;
+    ctx.font = `500 11px ${MONO}`; const wb = ctx.measureText(t2).width;
+    const w = Math.max(wa, wb) + 22, h = 38, x = o.x - w / 2, y = o.y - rc * 2.25 - h;
+    ctx.fillStyle = 'rgba(5,10,12,.76)'; roundRect(ctx, x, y, w, h, 11); ctx.fill();
+    ctx.strokeStyle = 'rgba(190,255,245,.22)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = COL.ink; ctx.font = `600 12px ${SANS}`; ctx.fillText(t1, o.x, y + 13);
+    ctx.fillStyle = COL.good; ctx.font = `500 11px ${MONO}`; ctx.fillText(t2, o.x, y + 27);
+    ctx.textAlign = 'left';
+  }
+  function draw(now, dt) {
+    const ctx = st.ctx;
+    if (!ctx) return;
+    dt = dt || 0;
+    if (st.intro) {
+      const q = clamp((now - st.intro) / 2000, 0, 1), e = ease.out(q);
+      st.introQ = q; st.D = lerp(64, D0, e); st.elev = lerp(1.18, st.elevT, e); st.yaw += dt * (1 - e) * 1.5;
+      if (q >= 1) { st.intro = null; st.introQ = 1; }
+    } else { st.D = D0; st.elev += (st.elevT - st.elev) * (1 - Math.exp(-dt * 6)); }
+    if (!st.drag) {
+      st.yaw += st.yawV * dt; st.yawV *= Math.exp(-dt * 2.4);
+      if (!REDUCED && now - st.lastInt > 2600) st.yaw += dt * .045;
+    }
+    cY = Math.cos(st.yaw); sY = Math.sin(st.yaw); cE = Math.cos(st.elev); sE = Math.sin(st.elev);
+    fit();
+    st.tSim = st.t1;
+    if (st.replay) {
+      const p = clamp((now - st.replay.start) / st.replay.dur, 0, 1);
+      st.replay.p = p; st.tSim = lerp(st.t0, st.t1, ease.inOut(p));
+      replayUI(p);
+      if (p >= 1) { st.replay = null; replayUI(null); }
+    }
+    atualizarDots(now, dt, st.tSim);
+    ctx.clearRect(0, 0, st.W, st.H);
+    const o = proj(0, 0, 0), vis = st.introQ;
+
+    { const rx = (RB + .8) * o.s;
+      ctx.save(); ctx.translate(o.x, o.y); ctx.scale(1, Math.max(.05, sE));
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+      g.addColorStop(0, `rgba(45,212,191,${(.12 * vis).toFixed(3)})`); g.addColorStop(.55, `rgba(45,212,191,${(.04 * vis).toFixed(3)})`); g.addColorStop(1, 'rgba(45,212,191,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rx, 0, TAU); ctx.fill(); ctx.restore(); }
+
+    if (!REDUCED) st.sweep += dt * .5;
+    if (vis > .5) {
+      const A = st.sweep, span = .8, n = 12;
+      for (let j = 0; j < n; j++) {
+        const a0 = A - span + span * j / n, a1 = A - span + span * (j + 1) / n;
+        const p1 = proj(Math.cos(a0) * 1.5, 0, Math.sin(a0) * 1.5), p2 = proj(Math.cos(a0) * RB, 0, Math.sin(a0) * RB);
+        const p3 = proj(Math.cos(a1) * RB, 0, Math.sin(a1) * RB), p4 = proj(Math.cos(a1) * 1.5, 0, Math.sin(a1) * 1.5);
+        ctx.fillStyle = `rgba(94,234,212,${(.005 + .05 * Math.pow((j + 1) / n, 2.2)).toFixed(4)})`;
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.closePath(); ctx.fill();
+      }
+      const e1 = proj(Math.cos(A) * 1.5, 0, Math.sin(A) * 1.5), e2 = proj(Math.cos(A) * RB, 0, Math.sin(A) * RB);
+      const lg = ctx.createLinearGradient(e1.x, e1.y, e2.x, e2.y); lg.addColorStop(0, 'rgba(94,234,212,0)'); lg.addColorStop(1, 'rgba(94,234,212,.4)');
+      ctx.strokeStyle = lg; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(e1.x, e1.y); ctx.lineTo(e2.x, e2.y); ctx.stroke();
+    }
+
+    anel(ctx, RB, '#a0f0e6', .5 * vis, 1, st.intro ? clamp(st.introQ / .5, 0, 1) : 1, false);
+    anel(ctx, RB + .6, '#a0f0e6', .2 * vis, 1, st.intro ? clamp((st.introQ - .1) / .5, 0, 1) : 1, false);
+    if (vis > .3) {
+      const pf = new Path2D(), pb = new Path2D();
+      for (let i = 0; i < 120; i++) {
+        const a = i / 120 * TAU, r2 = RB + (i % 10 === 0 ? .5 : .22);
+        const q1 = proj(Math.cos(a) * RB, 0, Math.sin(a) * RB), q2 = proj(Math.cos(a) * r2, 0, Math.sin(a) * r2);
+        const P = q1.z >= 0 ? pf : pb; P.moveTo(q1.x, q1.y); P.lineTo(q2.x, q2.y);
+      }
+      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(160,240,230,.1)'; ctx.stroke(pb); ctx.strokeStyle = 'rgba(160,240,230,.3)'; ctx.stroke(pf);
+    }
+    RINGS.forEach((rg, k) => { const hl = st.hl === k; anel(ctx, rg.r, hl ? COL.accent : RC[k], hl ? 1 : .8, hl ? 1.6 : 1.05, ringFrac(k), hl); });
+
+    ctx.globalCompositeOperation = 'lighter';
+    for (const p of st.dust) {
+      if (!REDUCED) p.th += p.w * dt;
+      const q = proj(Math.cos(p.th) * p.r, p.y, Math.sin(p.th) * p.r);
+      const fr = clamp((q.z / 12 + 1) / 2, 0, 1), s = p.s * q.s * .05;
+      ctx.fillStyle = `rgba(170,245,235,${(p.a * (.2 + .6 * fr) * vis).toFixed(3)})`;
+      ctx.fillRect(q.x - s / 2, q.y - s / 2, s, s);
+    }
+    if (!REDUCED && vis > .8) {
+      for (const c of st.comets) {
+        const r = RINGS[c.k].r; c.th += c.sp * dt * .35;
+        const q = proj(Math.cos(c.th) * r, 0, Math.sin(c.th) * r);
+        c.tr.push([q.x, q.y]); if (c.tr.length > 16) c.tr.shift();
+        for (let i = 1; i < c.tr.length; i++) { ctx.strokeStyle = `rgba(160,250,240,${(i / c.tr.length * .32).toFixed(3)})`; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(c.tr[i - 1][0], c.tr[i - 1][1]); ctx.lineTo(c.tr[i][0], c.tr[i][1]); ctx.stroke(); }
+        ctx.drawImage(SPR.teal, q.x - 5, q.y - 5, 10, 10);
+      }
+    }
+    ctx.globalCompositeOperation = 'source-over';
+
+    const back = [], front = [];
+    for (const dot of st.dots.values()) {
+      if (dot.a < .02) { dot.vis = false; continue; }
+      const blend = dot.kind === 'won' ? clamp((3.4 - dot.r) / (3.4 - dot.rr), 0, 1) : 0;
+      const tl = dot.tilt * blend, pz = Math.sin(dot.th) * dot.r;
+      const x = Math.cos(dot.th) * dot.r, y = pz * Math.sin(tl) + (REDUCED ? 0 : Math.sin(now / 900 + dot.ph) * .06 * (1 - blend)), z = pz * Math.cos(tl);
+      const q = proj(x, y, z);
+      dot.sx = q.x; dot.sy = q.y; dot.ps = q.s; dot.pz = q.z; dot.vis = true;
+      (q.z < 0 ? back : front).push(dot);
+    }
+    back.sort((a, b) => a.pz - b.pz); front.sort((a, b) => a.pz - b.pz);
+    desenharDots(ctx, back, now);
+    desenharNucleo(ctx, o, now, dt);
+    desenharDots(ctx, front, now);
+    desenharRotulos(ctx, o);
+    if (st.pin && (!st.pin.vis || st.pin.a < .2)) { st.pin = null; tip.hidden = true; }
+    if (st.hover || st.pin) posicionarTip(st.pin || st.hover);
+  }
+
+  function pontoMaisProximo(mx, my) {
+    let best = null, bd = 16 * 16;
+    for (const dot of st.dots.values()) {
+      if (!dot.vis || dot.a < .35) continue;
+      const dx = dot.sx - mx, dy = dot.sy - my, d2 = dx * dx + dy * dy;
+      if (d2 < bd) { bd = d2; best = dot; }
+    }
+    return best;
+  }
+  function rotuloEm(mx, my) { for (const l of st.labels) if (mx >= l.x && mx <= l.x + l.w && my >= l.y && my <= l.y + l.h) return l.k; return null; }
+  function preencherTip(dot) {
+    const d = dot.d, c = CAMP[d.campanhaId];
+    tip.textContent = '';
+    const t1 = el('div', 't1'); const sw = el('i'); sw.style.setProperty('--c', SRC[d.fonte].cor); t1.append(sw, document.createTextNode(`#${d.id} · ${SRC[d.fonte].nome}`));
+    const t2 = el('div', 't2', c.nome);
+    const t3 = el('div', 't3');
+    let estado, stale = false;
+    if (dot.kind === 'won') estado = `Venda em ${fmt.dm(new Date(d.fechadoEm))}`;
+    else if (dot.kind === 'lost') estado = 'Perdido';
+    else { const dias = Math.max(0, Math.floor((st.tSim - dot.em) / DAY)); stale = dias >= 7; estado = `${ETAPA_NOME[dot.e]} há ${dias} ${dias === 1 ? 'dia' : 'dias'}`; }
+    t3.append(el('b', '', fmt.money(d.valor)), el('span', stale ? 'stale' : '', estado));
+    tip.append(t1, t2, t3);
+  }
+  function posicionarTip(dot) {
+    if (!dot || !dot.vis) { tip.hidden = true; return; }
+    if (tip.hidden) return;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = dot.sx + 16; if (left + tw > st.W - 8) left = dot.sx - tw - 16;
+    left = clamp(left, 8, Math.max(8, st.W - tw - 8));
+    const top = clamp(dot.sy - th / 2, 8, Math.max(8, st.H - th - 8));
+    tip.style.transform = `translate(${Math.round(left)}px,${Math.round(top)}px)`;
+  }
+  function mostrarTip(dot) { preencherTip(dot); tip.hidden = false; posicionarTip(dot); }
+  function esconderTip() { if (!st.pin) tip.hidden = true; }
+  function setHl(k, from) {
+    if (st.hl === k) return;
+    st.hl = k; st.hlFrom = from;
+    $$('#stl li').forEach(li => li.classList.toggle('hl', k != null && li.dataset.k === RINGS[k].k));
+    if (REDUCED) draw(performance.now(), 0);
+  }
+  function hoverAt(mx, my) {
+    const k = rotuloEm(mx, my);
+    if (k != null) { setHl(k, 'orbit'); cv.style.cursor = 'pointer'; st.hover = null; esconderTip(); return; }
+    if (st.hlFrom === 'orbit') setHl(null, null);
+    cv.style.cursor = '';
+    const dot = pontoMaisProximo(mx, my);
+    if (dot !== st.hover) { st.hover = dot; if (dot) mostrarTip(dot); else esconderTip(); }
+    if (REDUCED) draw(performance.now(), 0);
+  }
+  function tapAt(mx, my) {
+    const k = rotuloEm(mx, my);
+    if (k != null) { setHl(st.hl === k ? null : k, 'orbit'); return; }
+    const dot = pontoMaisProximo(mx, my);
+    st.pin = dot; st.hover = null;
+    if (dot) mostrarTip(dot); else tip.hidden = true;
+    if (REDUCED) draw(performance.now(), 0);
+  }
+  cv.addEventListener('pointerdown', e => {
+    st.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, yaw: st.yaw, elev: st.elevT, moved: false, lx: e.clientX, lt: performance.now() };
+    st.lastInt = performance.now();
+  });
+  cv.addEventListener('pointermove', e => {
+    const r = cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    if (st.drag && st.drag.id === e.pointerId) {
+      const dx = e.clientX - st.drag.x, dy = e.clientY - st.drag.y;
+      if (!st.drag.moved && Math.abs(dx) + Math.abs(dy) > 5) { st.drag.moved = true; try { cv.setPointerCapture(e.pointerId); } catch (_) { /* ok */ } cv.classList.add('drag'); }
+      if (st.drag.moved) {
+        const t = performance.now(), ddt = Math.max(8, t - st.drag.lt);
+        st.yaw = st.drag.yaw + dx * .0065;
+        if (e.pointerType === 'mouse') { st.elevT = clamp(st.drag.elev + dy * .004, .2, 1.05); st.elevSet = true; }
+        st.yawV = clamp((e.clientX - st.drag.lx) * .0065 / (ddt / 1000), -5, 5);
+        st.drag.lx = e.clientX; st.drag.lt = t; st.lastInt = t;
+        st.hover = null; esconderTip();
+        if (REDUCED) draw(t, 0);
+      }
+      return;
+    }
+    if (e.pointerType === 'mouse') hoverAt(mx, my);
+  });
+  function soltar(e) {
+    if (!st.drag || st.drag.id !== e.pointerId) return;
+    const moved = st.drag.moved; st.drag = null; cv.classList.remove('drag');
+    if (!moved) { const r = cv.getBoundingClientRect(); tapAt(e.clientX - r.left, e.clientY - r.top); }
+  }
+  cv.addEventListener('pointerup', soltar);
+  cv.addEventListener('pointercancel', () => { st.drag = null; cv.classList.remove('drag'); });
+  cv.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !st.drag) { st.hover = null; if (st.hlFrom === 'orbit') setHl(null, null); esconderTip(); } });
+  $('#btnReplay').addEventListener('click', () => {
+    if (st.replay) st.replay.start = performance.now() - st.replay.dur;
+    else { st.pin = null; tip.hidden = true; iniciarReplay(0); }
+  });
+  if (REDUCED) $('#replay').hidden = true;
+
+  return {
+    resize, setData, draw, highlight: k => setHl(k == null ? null : IDX[k], k == null ? null : 'list'),
+    replay: iniciarReplay, intro: iniciarIntro, el: stageEl,
+    get visible() { return st.visible; }, set visible(v) { st.visible = v; }
+  };
+}
+
+/* ================= leads por dia (empilhado por fonte) ================= */
+function criarDiario() {
+  const wrap = $('#dWrap'), cv = $('#daily'), tip = $('#dTip');
+  const st = { ctx: null, W: 0, H: 0, cur: null, from: null, shown: null, t0: 0, mode: 'intro', hover: -1, lay: null, sc: null, scT: null, scF: null, py: null, visible: true, dirty: true };
+  function resize() {
+    const r = wrap.getBoundingClientRect();
+    if (r.width < 10 || r.height < 10) return;
+    st.W = Math.round(r.width); st.H = Math.round(r.height); st.ctx = prepCanvas(cv, st.W, st.H); st.dirty = true;
+  }
+  function setData(V, intro) {
+    const dias = V.dias.map(d => ({ data: d.data, hoje: d.hoje, meta: d.leads.meta, google: d.leads.google, invest: d.investLead }));
+    const same = !intro && st.cur && st.cur.dias.length === dias.length && st.shown && st.shown.length === dias.length;
+    st.from = same ? st.shown.map(v => Object.assign({}, v)) : null;
+    st.scF = same ? st.sc : null; st.mode = same ? 'morph' : 'intro';
+    st.scT = niceMax(Math.max(0, ...dias.map(d => d.meta + d.google)), 4, true);
+    st.cur = { dias, fontes: V.fontesLead, vazio: !V.selLead.length };
+    st.t0 = performance.now(); st.hover = -1; tip.hidden = true; st.dirty = true;
+    cv.setAttribute('aria-label', V.selLead.length ? `Leads por dia nos últimos ${V.periodo} dias: ${fmt.int(V.TL.leads)} no total, ${fmt.int(V.TL.meta.leads)} do Meta Ads e ${fmt.int(V.TL.google.leads)} do Google Ads.` : 'Nenhuma campanha de lead selecionada.');
+  }
+  function draw(now) {
+    const { ctx, W, H, cur } = st;
+    if (!ctx || !cur) return;
+    if (!st.dirty && now - st.t0 > 1500) return;
+    ctx.clearRect(0, 0, W, H);
+    if (cur.vazio) { msgVazio(ctx, W, H, 'Nenhuma campanha de lead selecionada'); st.lay = null; if (now - st.t0 > 1500) st.dirty = false; return; }
+    const n = cur.dias.length, small = W < 480;
+    ctx.font = `500 10px ${MONO}`;
+    const padL = Math.ceil(larguraTicks(ctx, st.scT, fmt.int)) + 12, padR = 6, padT = 8, axisH = 22;
+    const h1 = H - padT - axisH, base = padT + h1, iw = W - padL - padR, slot = iw / n;
+    const xc = i => padL + slot * (i + .5);
+    st.lay = { padL, slot, n, xc };
+    const el0 = now - st.t0, eM = REDUCED ? 1 : ease.out(clamp(el0 / 700, 0, 1));
+    const sc = st.mode === 'morph' && st.scF ? { max: lerp(st.scF.max, st.scT.max, eM), step: st.scT.step } : st.scT;
+    st.sc = sc;
+    const shown = cur.dias.map((d, i) => st.mode === 'morph' && st.from ? { meta: lerp(st.from[i].meta, d.meta, eM), google: lerp(st.from[i].google, d.google, eM) } : { meta: d.meta, google: d.google });
+    st.shown = shown;
+    ctx.font = `500 10px ${MONO}`; ctx.textBaseline = 'middle'; ctx.lineWidth = 1;
+    for (let v = 0; v <= sc.max + 1e-6; v += sc.step) {
+      const y = Math.round(base - v / sc.max * h1) + .5;
+      ctx.strokeStyle = v === 0 ? COL.axis : COL.hair; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+      ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.fillText(fmt.int(v), padL - 7, y);
+    }
+    const bw = clamp(slot * .6, 2, 22), gap = bw >= 5 ? 2 : 1, r = Math.min(4, bw / 2), stg = Math.min(22, 520 / n);
+    for (let i = 0; i < n; i++) {
+      const k = st.mode === 'intro' && !REDUCED ? ease.back(clamp((el0 - i * stg) / 600, 0, 1)) : 1;
+      const m = Math.max(0, shown[i].meta * k), g = Math.max(0, shown[i].google * k);
+      const x = xc(i) - bw / 2, hm = m / sc.max * h1, hg = g / sc.max * h1, hl = st.hover === i, part = cur.dias[i].hoje;
+      const seg = (y, hh, color, rr) => {
+        topoArredondado(ctx, x, y, bw, hh, rr);
+        const gr = ctx.createLinearGradient(0, y, 0, y + hh); gr.addColorStop(0, color); gr.addColorStop(1, rgba(color, .45));
+        ctx.globalAlpha = part ? .55 : (st.hover >= 0 && !hl ? .55 : 1); ctx.fillStyle = gr;
+        if (hl) { ctx.shadowColor = rgba(color, .8); ctx.shadowBlur = 14; }
+        ctx.fill(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      };
+      if (hm > .4) seg(base - hm, hm, COL.meta, hg > .4 ? 0 : r);
+      if (hg > .4) seg(base - hm - (hm > .4 ? gap : 0) - hg, hg, COL.google, r);
+    }
+    if (st.hover >= 0 && st.hover < n) { const x = Math.round(xc(st.hover)) + .5; ctx.strokeStyle = rgba(COL.accent, .35); ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, base); ctx.stroke(); }
+    ctx.textBaseline = 'top'; ctx.textAlign = 'center'; ctx.fillStyle = COL.ink3; ctx.font = `500 10px ${MONO}`;
+    const every = Math.max(1, Math.ceil((small ? 46 : 52) / slot));
+    for (let i = n - 1; i >= 0; i -= every) { const d = cur.dias[i]; ctx.fillText(d.hoje ? 'hoje' : fmt.dm(d.data), clamp(xc(i), padL + 14, W - 16), base + 7); }
+    if (!cur.dias.some(d => d.meta + d.google > 0)) { ctx.fillStyle = COL.ink3; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `500 12px ${SANS}`; ctx.fillText('Sem leads no período', padL + iw / 2, padT + h1 / 2); }
+    if (now - st.t0 > 1500) st.dirty = false;
+  }
+  function preencher(i) {
+    const d = st.cur.dias[i];
+    tip.textContent = '';
+    tip.append(el('div', 'td', d.hoje ? `Hoje · ${fmt.dm(d.data)} · parcial` : `${fmt.wd(d.data)} · ${fmt.dm(d.data)}`));
+    const row = (color, val, label) => { const r = el('div', 'tr'); const k = el('i', 'key'); if (color) k.style.setProperty('--c', color); else k.style.visibility = 'hidden'; r.append(k, el('b', '', val), el('span', '', label)); tip.append(r); };
+    if (st.cur.fontes.has('meta')) row(COL.meta, fmt.int(d.meta), 'Meta Ads');
+    if (st.cur.fontes.has('google')) row(COL.google, fmt.int(d.google), 'Google Ads');
+    tip.append(el('div', 'sep'));
+    row(null, fmt.int(d.meta + d.google), 'leads no dia');
+    row(null, fmt.money(d.invest), 'investimento em lead');
+  }
+  function mostrar(i) {
+    const L = st.lay; if (!L || !st.cur || st.cur.vazio) return;
+    st.hover = i; st.dirty = true; preencher(i); tip.hidden = false;
+    const tw = tip.offsetWidth, th = tip.offsetHeight, x = L.xc(i);
+    let left = x + 14; if (left + tw > st.W - 2) left = x - tw - 14;
+    left = clamp(left, 2, Math.max(2, st.W - tw - 2));
+    const top = clamp(st.py == null ? 6 : st.py - th / 2, 2, Math.max(2, st.H - th - 2));
+    tip.style.transform = `translate(${Math.round(left)}px,${Math.round(top)}px)`;
+    if (REDUCED) draw(performance.now());
+  }
+  function esconder() { if (st.hover < 0) return; st.hover = -1; st.dirty = true; tip.hidden = true; if (REDUCED) draw(performance.now()); }
+  function idx(clientX) { const L = st.lay; if (!L) return -1; const r = wrap.getBoundingClientRect(); return clamp(Math.floor((clientX - r.left - L.padL) / L.slot), 0, L.n - 1); }
+  wrap.addEventListener('pointermove', e => { if (!st.cur) return; st.py = e.clientY - wrap.getBoundingClientRect().top; mostrar(idx(e.clientX)); });
+  wrap.addEventListener('pointerdown', e => { if (!st.cur) return; st.py = e.clientY - wrap.getBoundingClientRect().top; mostrar(idx(e.clientX)); });
+  wrap.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') esconder(); });
+  wrap.addEventListener('blur', esconder);
+  document.addEventListener('pointerdown', e => { if (st.hover >= 0 && !wrap.contains(e.target)) esconder(); });
+  wrap.addEventListener('keydown', e => {
+    if (!st.cur) return;
+    const n = st.cur.dias.length;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); st.py = null; mostrar(st.hover < 0 ? n - 1 : clamp(st.hover + (e.key === 'ArrowRight' ? 1 : -1), 0, n - 1)); }
+    else if (e.key === 'Escape') esconder();
+  });
+  function replay() { st.mode = 'intro'; st.from = null; st.scF = null; st.t0 = performance.now(); st.dirty = true; }
+  return { resize, setData, draw, replay, el: wrap, get visible() { return st.visible; }, set visible(v) { st.visible = v; } };
+}
+
+/* ================= barras simples (audiência) ================= */
+function criarBarras(wrapSel, cvSel, tipSel, cor, rotulo) {
+  const wrap = $(wrapSel), cv = $(cvSel), tip = $(tipSel);
+  const st = { ctx: null, W: 0, H: 0, dias: null, vals: null, vazio: '', t0: 0, hover: -1, lay: null, py: null, visible: true, dirty: true };
+  function resize() {
+    const r = wrap.getBoundingClientRect();
+    if (r.width < 10 || r.height < 10) return;
+    st.W = Math.round(r.width); st.H = Math.round(r.height); st.ctx = prepCanvas(cv, st.W, st.H); st.dirty = true;
+  }
+  function setData(dias, vals, vazioMsg, ariaTexto) {
+    st.dias = dias; st.vals = vals; st.vazio = vazioMsg || ''; st.t0 = performance.now(); st.hover = -1; tip.hidden = true; st.dirty = true;
+    cv.setAttribute('aria-label', ariaTexto || rotulo);
+  }
+  function draw(now) {
+    const { ctx, W, H, vals, dias } = st;
+    if (!ctx || !vals) return;
+    if (!st.dirty && now - st.t0 > 1300) return;
+    ctx.clearRect(0, 0, W, H);
+    if (st.vazio) { msgVazio(ctx, W, H, st.vazio); st.lay = null; if (now - st.t0 > 1300) st.dirty = false; return; }
+    const sc = niceMax(Math.max(0, ...vals.map(v => v || 0)), 3, true), ft = sc.max >= 10000 ? fmt.comp : fmt.int;
+    ctx.font = `500 10px ${MONO}`;
+    const n = vals.length, padL = Math.ceil(larguraTicks(ctx, sc, ft)) + 10, padR = 4, padT = 6, axisH = 20, h1 = H - padT - axisH, base = padT + h1, iw = W - padL - padR, slot = iw / n;
+    const xc = i => padL + slot * (i + .5);
+    st.lay = { padL, slot, n, xc };
+    ctx.textBaseline = 'middle'; ctx.lineWidth = 1;
+    for (let v = 0; v <= sc.max + 1e-6; v += sc.step) {
+      const y = Math.round(base - v / sc.max * h1) + .5;
+      ctx.strokeStyle = v === 0 ? COL.axis : COL.hair; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+      ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.fillText(ft(v), padL - 6, y);
+    }
+    const el0 = now - st.t0, bw = clamp(slot * .6, 1.5, 16), r = Math.min(3, bw / 2), stg = Math.min(18, 420 / n);
+    for (let i = 0; i < n; i++) {
+      const k = REDUCED ? 1 : ease.back(clamp((el0 - i * stg) / 550, 0, 1));
+      const v = Math.max(0, (vals[i] || 0) * k), hh = v / sc.max * h1;
+      if (hh < .4) continue;
+      topoArredondado(ctx, xc(i) - bw / 2, base - hh, bw, hh, r);
+      const gr = ctx.createLinearGradient(0, base - hh, 0, base); gr.addColorStop(0, cor); gr.addColorStop(1, rgba(cor, .4));
+      ctx.globalAlpha = dias[i].hoje ? .55 : (st.hover >= 0 && st.hover !== i ? .55 : 1); ctx.fillStyle = gr; ctx.fill(); ctx.globalAlpha = 1;
+    }
+    ctx.textBaseline = 'top'; ctx.textAlign = 'center'; ctx.fillStyle = COL.ink3; ctx.font = `500 10px ${MONO}`;
+    [0, n - 1].forEach(i => ctx.fillText(dias[i].hoje ? 'hoje' : fmt.dm(dias[i].data), clamp(xc(i), padL + 14, W - 16), base + 6));
+    if (now - st.t0 > 1300) st.dirty = false;
+  }
+  function mostrar(i) {
+    const L = st.lay; if (!L || !st.vals || st.vazio) return;
+    st.hover = i; st.dirty = true;
+    const d = st.dias[i]; tip.textContent = '';
+    tip.append(el('div', 'td', d.hoje ? `Hoje · ${fmt.dm(d.data)} · parcial` : `${fmt.wd(d.data)} · ${fmt.dm(d.data)}`));
+    const r = el('div', 'tr'); const k = el('i', 'key'); k.style.setProperty('--c', cor); r.append(k, el('b', '', fmt.int(st.vals[i] || 0)), el('span', '', rotulo)); tip.append(r);
+    tip.hidden = false;
+    const tw = tip.offsetWidth, th = tip.offsetHeight, x = L.xc(i);
+    let left = x + 12; if (left + tw > st.W - 2) left = x - tw - 12;
+    left = clamp(left, 2, Math.max(2, st.W - tw - 2));
+    const top = clamp(st.py == null ? 4 : st.py - th / 2, 2, Math.max(2, st.H - th - 2));
+    tip.style.transform = `translate(${Math.round(left)}px,${Math.round(top)}px)`;
+    if (REDUCED) draw(performance.now());
+  }
+  function esconder() { if (st.hover < 0) return; st.hover = -1; st.dirty = true; tip.hidden = true; if (REDUCED) draw(performance.now()); }
+  function idx(clientX) { const L = st.lay; if (!L) return -1; const r = wrap.getBoundingClientRect(); return clamp(Math.floor((clientX - r.left - L.padL) / L.slot), 0, L.n - 1); }
+  wrap.addEventListener('pointermove', e => { st.py = e.clientY - wrap.getBoundingClientRect().top; mostrar(idx(e.clientX)); });
+  wrap.addEventListener('pointerdown', e => { st.py = e.clientY - wrap.getBoundingClientRect().top; mostrar(idx(e.clientX)); });
+  wrap.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') esconder(); });
+  wrap.addEventListener('blur', esconder);
+  document.addEventListener('pointerdown', e => { if (st.hover >= 0 && !wrap.contains(e.target)) esconder(); });
+  wrap.addEventListener('keydown', e => {
+    if (!st.vals) return;
+    const n = st.vals.length;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); st.py = null; mostrar(st.hover < 0 ? n - 1 : clamp(st.hover + (e.key === 'ArrowRight' ? 1 : -1), 0, n - 1)); }
+    else if (e.key === 'Escape') esconder();
+  });
+  function replay() { st.t0 = performance.now(); st.dirty = true; }
+  return { resize, setData, draw, replay, el: wrap, get visible() { return st.visible; }, set visible(v) { st.visible = v; } };
+}
+
+/* ================= CPL por fonte ================= */
+function criarCpl() {
+  const wrap = $('#cplWrap'), cv = $('#cpl'), tip = $('#cplTip');
+  const st = { ctx: null, W: 0, H: 0, cur: null, t0: 0, hover: -1, lay: null, visible: true, dirty: true };
+  function resize() {
+    const r = wrap.getBoundingClientRect();
+    if (r.width < 10 || r.height < 10) return;
+    st.W = Math.round(r.width); st.H = Math.round(r.height); st.ctx = prepCanvas(cv, st.W, st.H); st.dirty = true;
+  }
+  function setData(V) {
+    const dias = V.dias.map(d => ({ data: d.data, hoje: d.hoje, m: d.cpl7.meta, g: d.cpl7.google }));
+    st.cur = { dias, fontes: V.fontesLead, sc: niceMax(Math.max(0, ...dias.map(d => Math.max(d.m || 0, d.g || 0))), 2, false) };
+    st.t0 = performance.now(); st.hover = -1; tip.hidden = true; st.dirty = true;
+    const ult = dias[dias.length - 1];
+    cv.setAttribute('aria-label', `CPL médio de 7 dias por fonte, só campanhas de lead. Hoje: Meta Ads ${ult.m == null ? ND : fmt.money2(ult.m)}, Google Ads ${ult.g == null ? ND : fmt.money2(ult.g)}.`);
+  }
+  function draw(now) {
+    const { ctx, W, H, cur } = st;
+    if (!ctx || !cur) return;
+    if (!st.dirty && now - st.t0 > 1300) return;
+    ctx.clearRect(0, 0, W, H);
+    if (!cur.fontes.size) { msgVazio(ctx, W, H, 'Nenhuma campanha de lead selecionada'); st.lay = null; if (now - st.t0 > 1300) st.dirty = false; return; }
+    const sc = cur.sc;
+    ctx.font = `500 10px ${MONO}`;
+    const n = cur.dias.length, padL = Math.ceil(larguraTicks(ctx, sc, fmt.money)) + 12, padR = 52, padT = 10, axisH = 18, h = H - padT - axisH, base = padT + h, iw = W - padL - padR;
+    const xc = i => padL + (n > 1 ? iw * i / (n - 1) : iw / 2);
+    st.lay = { padL, iw, n, xc };
+    ctx.textBaseline = 'middle'; ctx.lineWidth = 1;
+    for (let v = 0; v <= sc.max + 1e-6; v += sc.step) {
+      const y = Math.round(base - v / sc.max * h) + .5;
+      ctx.strokeStyle = v === 0 ? COL.axis : COL.hair; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+      ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.fillText(fmt.money(v), padL - 8, y);
+    }
+    const rev = REDUCED ? 1 : ease.inOut(clamp((now - st.t0) / 1100, 0, 1)), revX = padL + iw * rev;
+    const Y = v => base - clamp(v / sc.max, 0, 1.05) * h;
+    ctx.save(); ctx.beginPath(); ctx.rect(padL - 6, padT - 6, revX - padL + 12, h + 12); ctx.clip();
+    const ends = [];
+    for (const f of ['meta', 'google']) {
+      if (!cur.fontes.has(f)) continue;
+      const key = f === 'meta' ? 'm' : 'g', color = SRC[f].cor;
+      ctx.beginPath(); let on = false, last = -1;
+      for (let i = 0; i < n; i++) { const v = cur.dias[i][key]; if (v == null) { on = false; continue; } const x = xc(i), y = Y(v); if (!on) { ctx.moveTo(x, y); on = true; } else ctx.lineTo(x, y); last = i; }
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.shadowColor = rgba(color, .7); ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
+      if (last >= 0) ends.push({ x: xc(last), y: Y(cur.dias[last][key]), v: cur.dias[last][key], color });
+    }
+    ctx.restore();
+    if (rev >= 1) {
+      for (const e of ends) { ctx.beginPath(); ctx.arc(e.x, e.y, 6, 0, TAU); ctx.fillStyle = COL.surface; ctx.fill(); ctx.beginPath(); ctx.arc(e.x, e.y, 4, 0, TAU); ctx.fillStyle = e.color; ctx.fill(); }
+      if (!(ends.length === 2 && Math.abs(ends[0].y - ends[1].y) < 14)) { ctx.textAlign = 'left'; ctx.fillStyle = COL.ink2; ctx.font = `500 10.5px ${MONO}`; for (const e of ends) ctx.fillText(fmt.money(e.v), e.x + 10, e.y); }
+    }
+    if (st.hover >= 0) {
+      const x = Math.round(xc(st.hover)) + .5; ctx.strokeStyle = rgba(COL.accent, .35); ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, base); ctx.stroke();
+      for (const f of ['meta', 'google']) { if (!cur.fontes.has(f)) continue; const v = cur.dias[st.hover][f === 'meta' ? 'm' : 'g']; if (v == null) continue; ctx.beginPath(); ctx.arc(x, Y(v), 6, 0, TAU); ctx.fillStyle = COL.surface; ctx.fill(); ctx.beginPath(); ctx.arc(x, Y(v), 4, 0, TAU); ctx.fillStyle = SRC[f].cor; ctx.fill(); }
+    }
+    ctx.textBaseline = 'top'; ctx.textAlign = 'center'; ctx.fillStyle = COL.ink3; ctx.font = `500 10px ${MONO}`;
+    [0, Math.floor((n - 1) / 2), n - 1].forEach(i => { const d = cur.dias[i]; ctx.fillText(d.hoje ? 'hoje' : fmt.dm(d.data), clamp(xc(i), padL + 14, W - padR), base + 5); });
+    if (now - st.t0 > 1300) st.dirty = false;
+  }
+  function mostrar(i, py) {
+    const L = st.lay; if (!L || !st.cur || !st.cur.fontes.size) return;
+    st.hover = i; st.dirty = true; const d = st.cur.dias[i];
+    tip.textContent = ''; tip.append(el('div', 'td', d.hoje ? `Hoje · ${fmt.dm(d.data)}` : `${fmt.wd(d.data)} · ${fmt.dm(d.data)}`));
+    for (const f of ['meta', 'google']) { if (!st.cur.fontes.has(f)) continue; const v = d[f === 'meta' ? 'm' : 'g']; const r = el('div', 'tr'); const k = el('i', 'key'); k.style.setProperty('--c', SRC[f].cor); r.append(k, el('b', '', v == null ? ND : fmt.money2(v)), el('span', '', SRC[f].nome)); tip.append(r); }
+    tip.hidden = false;
+    const tw = tip.offsetWidth, th = tip.offsetHeight, x = L.xc(i);
+    let left = x + 12; if (left + tw > st.W - 2) left = x - tw - 12;
+    left = clamp(left, 2, Math.max(2, st.W - tw - 2));
+    const top = clamp(py == null ? 4 : py - th / 2, 2, Math.max(2, st.H - th - 2));
+    tip.style.transform = `translate(${Math.round(left)}px,${Math.round(top)}px)`;
+    if (REDUCED) draw(performance.now());
+  }
+  function esconder() { if (st.hover < 0) return; st.hover = -1; st.dirty = true; tip.hidden = true; if (REDUCED) draw(performance.now()); }
+  function idx(clientX) { const L = st.lay; if (!L) return -1; const r = wrap.getBoundingClientRect(); return clamp(Math.round((clientX - r.left - L.padL) / (L.iw / Math.max(1, L.n - 1))), 0, L.n - 1); }
+  wrap.addEventListener('pointermove', e => mostrar(idx(e.clientX), e.clientY - wrap.getBoundingClientRect().top));
+  wrap.addEventListener('pointerdown', e => mostrar(idx(e.clientX), e.clientY - wrap.getBoundingClientRect().top));
+  wrap.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') esconder(); });
+  wrap.addEventListener('blur', esconder);
+  document.addEventListener('pointerdown', e => { if (st.hover >= 0 && !wrap.contains(e.target)) esconder(); });
+  wrap.addEventListener('keydown', e => {
+    if (!st.cur) return;
+    const n = st.cur.dias.length;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); mostrar(st.hover < 0 ? n - 1 : clamp(st.hover + (e.key === 'ArrowRight' ? 1 : -1), 0, n - 1), null); }
+    else if (e.key === 'Escape') esconder();
+  });
+  function replay() { st.t0 = performance.now(); st.dirty = true; }
+  return { resize, setData, draw, replay, el: wrap, get visible() { return st.visible; }, set visible(v) { st.visible = v; } };
+}
+
+/* ================= funil ================= */
+function criarFunil() {
+  const wrap = $('#fWrap'), cv = $('#funil');
+  const st = { ctx: null, W: 0, H: 0, stages: null, norm: null, from: null, target: null, t0: 0, visible: true };
+  function resize() {
+    const r = wrap.getBoundingClientRect();
+    if (r.width < 10 || r.height < 10) return;
+    st.W = Math.round(r.width); st.H = Math.round(r.height); st.ctx = prepCanvas(cv, st.W, st.H);
+  }
+  function setData(V) {
+    const f = V.funil, T = V.TL, div = (a, b) => (b > 0 ? a / b : null);
+    st.stages = [
+      { nome: 'Impressões', v: f.impressoes, meta: T.meta.impressoes, google: T.google.impressoes, conv: null, comp: true },
+      { nome: 'Cliques', v: f.cliques, meta: T.meta.cliques, google: T.google.cliques, conv: ['CTR', div(f.cliques, f.impressoes)] },
+      { nome: 'Leads', v: f.leads, meta: T.meta.leads, google: T.google.leads, conv: ['clique → lead', div(f.leads, f.cliques)] },
+      { nome: 'Qualificados', v: f.qual.total, meta: f.qual.meta, google: f.qual.google, conv: ['qualificação', div(f.qual.total, f.leads)] },
+      { nome: 'Propostas', v: f.prop.total, meta: f.prop.meta, google: f.prop.google, conv: ['proposta', div(f.prop.total, f.qual.total)] },
+      { nome: 'Vendas', v: f.vendas.total, meta: f.vendas.meta, google: f.vendas.google, conv: ['fechamento', div(f.vendas.total, f.prop.total)] }
+    ];
+    const vmax = Math.max(10, st.stages[0].v);
+    st.target = st.stages.map(s => (s.v > 0 ? Math.log10(1 + s.v) / Math.log10(1 + vmax) : 0));
+    st.from = st.norm ? st.norm.slice() : st.target.map(() => 0);
+    st.t0 = performance.now();
+    cv.setAttribute('aria-label', 'Funil das campanhas de lead: ' + st.stages.map(s => `${s.nome} ${fmt.int(s.v)}`).join(', ') + '. Largura das barras em escala logarítmica.');
+    const tb = $('#fTable'); tb.textContent = '';
+    tb.append(el('caption', '', 'Funil das campanhas de lead'));
+    const head = el('tr'); ['Etapa', 'Total', 'Meta Ads', 'Google Ads', 'Conversão da etapa anterior'].forEach(t => head.append(el('th', '', t))); tb.append(head);
+    st.stages.forEach(s => { const tr = el('tr'); [s.nome, fmt.int(s.v), fmt.int(s.meta), fmt.int(s.google), s.conv ? (s.conv[1] == null ? ND : fmt.pct(s.conv[1])) : ''].forEach(t => tr.append(el('td', '', t))); tb.append(tr); });
+  }
+  function draw(now) {
+    const { ctx, W, H } = st;
+    if (!ctx || !st.stages) return;
+    ctx.clearRect(0, 0, W, H);
+    const e = REDUCED ? 1 : ease.out(clamp((now - st.t0) / 1000, 0, 1));
+    st.norm = st.target.map((t, k) => lerp(st.from[k] || 0, t, e));
+    const n = st.stages.length, rowH = H / n, labW = clamp(W * .34, 84, 130), convW = clamp(W * .24, 60, 82), bx0 = labW, bw = Math.max(40, W - labW - convW - 8);
+    const tight = rowH < 36;
+    for (let k = 0; k < n; k++) {
+      const s = st.stages[k], cy = k * rowH + rowH / 2;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = COL.ink3; ctx.font = `500 10.5px ${SANS}`; ctx.fillText(s.nome, 0, cy - (tight ? 4 : 5));
+      ctx.fillStyle = COL.ink; ctx.font = `400 ${tight ? 14 : 15}px ${SANS}`; ctx.fillText(s.comp ? fmt.comp(s.v) : fmt.int(s.v), 0, cy + (tight ? 11.5 : 13));
+      ctx.fillStyle = COL.hair; roundRect(ctx, bx0, cy - 4, bw, 8, 4); ctx.fill();
+      const w = Math.max(s.v > 0 ? 6 : 0, bw * (st.norm[k] || 0));
+      if (w > 0) {
+        const col = k === n - 1 ? COL.good : COL.st[Math.min(k, 4)];
+        const g = ctx.createLinearGradient(bx0, 0, bx0 + w, 0); g.addColorStop(0, rgba(col, .5)); g.addColorStop(1, col);
+        ctx.fillStyle = g; ctx.shadowColor = rgba(col, .7); ctx.shadowBlur = 10; roundRect(ctx, bx0, cy - 4, w, 8, 4); ctx.fill(); ctx.shadowBlur = 0;
+        if (!REDUCED && w > 20) {
+          const gx = bx0 + ((now / 2200 + k * .17) % 1) * w, gg = ctx.createLinearGradient(gx - 24, 0, gx + 24, 0);
+          gg.addColorStop(0, 'rgba(255,255,255,0)'); gg.addColorStop(.5, 'rgba(255,255,255,.45)'); gg.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.save(); roundRect(ctx, bx0, cy - 4, w, 8, 4); ctx.clip(); ctx.fillStyle = gg; ctx.fillRect(gx - 24, cy - 4, 48, 8); ctx.restore();
+        }
+        const tot = s.meta + s.google;
+        if (tot > 0) {
+          const both = s.meta > 0 && s.google > 0, wm = (w - (both ? 2 : 0)) * s.meta / tot, y2 = cy + 8;
+          if (s.meta > 0) { ctx.fillStyle = COL.meta; ctx.fillRect(bx0, y2, Math.max(1, wm), 2); }
+          if (s.google > 0) { ctx.fillStyle = COL.google; ctx.fillRect(bx0 + wm + (both ? 2 : 0), y2, Math.max(1, w - wm - (both ? 2 : 0)), 2); }
+        }
+      }
+      if (s.conv) {
+        ctx.textAlign = 'right';
+        ctx.fillStyle = COL.ink; ctx.font = `500 12px ${MONO}`; ctx.fillText(s.conv[1] == null ? ND : fmt.pct(s.conv[1]), W, cy + 1);
+        ctx.fillStyle = COL.ink3; ctx.font = `500 9.5px ${SANS}`; ctx.fillText(s.conv[0], W, cy + 14);
+      }
+    }
+  }
+  function replay() { if (!st.target) return; st.from = st.target.map(() => 0); st.t0 = performance.now(); }
+  return { resize, setData, draw, replay, el: wrap, get visible() { return st.visible; }, set visible(v) { st.visible = v; } };
+}
+
+/* ================= medidor de retorno ================= */
+function criarGauge() {
+  const wrap = $('#gaugeWrap'), cv = $('#gauge');
+  const st = { ctx: null, W: 0, H: 0, v: null, from: 0, shown: 0, max: 3, maxF: 3, t0: 0, visible: true };
+  function resize() {
+    const r = wrap.getBoundingClientRect();
+    if (r.width < 10) return;
+    st.W = Math.round(r.width); st.H = Math.round(r.height); st.ctx = prepCanvas(cv, st.W, st.H);
+  }
+  function setData(roas) { st.from = st.shown; st.maxF = st.max; st.v = roas; st.max = Math.max(3, Math.ceil((roas || 0) + .25)); st.t0 = performance.now(); }
+  function draw(now) {
+    const { ctx, W, H } = st;
+    if (!ctx) return;
+    ctx.clearRect(0, 0, W, H);
+    const e = REDUCED ? 1 : ease.out(clamp((now - st.t0) / 1300, 0, 1));
+    const val = lerp(st.from, st.v == null ? 0 : st.v, e); st.shown = val;
+    const max = lerp(st.maxF, st.max, e);
+    const cx = W / 2, cy = 78, R = Math.min(W * .3, 64), lw = 7;
+    const a0 = Math.PI * 5 / 6, a1 = Math.PI * 13 / 6, span = a1 - a0;
+    const col = st.v == null ? COL.ink3 : st.v >= 1 ? COL.good : COL.bad;
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 48; i++) {
+      const a = a0 + span * i / 48, big = i % 8 === 0, r1 = R + lw / 2 + 5, r2 = r1 + (big ? 6 : 3);
+      ctx.strokeStyle = rgba('#a0f0e6', big ? .35 : .15);
+      ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
+    }
+    ctx.lineCap = 'round'; ctx.lineWidth = lw; ctx.strokeStyle = rgba(col, .15);
+    ctx.beginPath(); ctx.arc(cx, cy, R, a0, a1); ctx.stroke();
+    const f = clamp(val / max, 0, 1);
+    if (f > .002) {
+      ctx.strokeStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 14;
+      ctx.beginPath(); ctx.arc(cx, cy, R, a0, a0 + span * f); ctx.stroke(); ctx.shadowBlur = 0;
+      const ah = a0 + span * f, hx = cx + Math.cos(ah) * R, hy = cy + Math.sin(ah) * R;
+      ctx.beginPath(); ctx.arc(hx, hy, lw * .42, 0, TAU); ctx.fillStyle = '#f2fffb'; ctx.fill();
+      if (!REDUCED) { const p = (now % 1700) / 1700; ctx.lineWidth = 1.2; ctx.strokeStyle = rgba(col, (1 - p) * .7); ctx.beginPath(); ctx.arc(hx, hy, lw * .5 + 10 * p, 0, TAU); ctx.stroke(); }
+    }
+    ctx.lineCap = 'butt';
+    const a1x = a0 + span / max, r1 = R - lw / 2 - 3, r2 = R + lw / 2 + 12;
+    ctx.strokeStyle = COL.ink2; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx + Math.cos(a1x) * r1, cy + Math.sin(a1x) * r1); ctx.lineTo(cx + Math.cos(a1x) * r2, cy + Math.sin(a1x) * r2); ctx.stroke();
+    ctx.fillStyle = COL.ink3; ctx.font = `500 10px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const lab = (a, t) => { const rr = R + lw / 2 + 22; ctx.fillText(t, cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); };
+    lab(a1x, '1x'); lab(a0, '0'); lab(a1, fmt.int(max) + 'x');
+  }
+  function replay() { st.from = 0; st.maxF = st.max; st.t0 = performance.now(); }
+  return { resize, setData, draw, replay, el: wrap, get visible() { return st.visible; }, set visible(v) { st.visible = v; } };
+}
+
+/* ================= renderização ================= */
+function deltaEl(cur, prev, bom, curto) {
+  const span = el('span');
+  if (prev == null || cur == null || !(prev > 0)) { span.className = 'flat'; span.textContent = curto ? 'sem comparação' : 'sem período anterior para comparar'; return span; }
+  const d = (cur - prev) / prev, up = d > .0005, down = d < -.0005;
+  const b = el('b', !bom || (!up && !down) ? 'flat' : ((up && bom === 'up') || (down && bom === 'down')) ? 'good' : 'bad', `${up ? '▲' : down ? '▼' : '='} ${fmt.pct(Math.abs(d))}`);
+  span.append(b, document.createTextNode(curto ? ' vs anterior' : ' vs período anterior'));
+  return span;
+}
+function setSub(id, node) { const e = $(id); e.textContent = ''; e.append(node); }
+let sparkVals = null;
+function desenharSparkHero(anim) { if (sparkVals) sparkline($('#kSpark'), sparkVals, '#cfe6e2', anim); }
+
+function renderKPIs(V, anim) {
+  $('#chipPer').textContent = `${V.periodo} dias`;
+  countTo($('#kLeads'), V.TL.leads, fmt.int, anim, 0);
+  const sp = $('#kSplit'); sp.textContent = '';
+  for (const f of ['meta', 'google']) { if (!V.fontesLead.has(f)) continue; const s = el('span'); const i = el('i'); i.style.setProperty('--c', SRC[f].cor); s.append(i, document.createTextNode(`${SRC[f].curto} ${fmt.int(V.TL[f].leads)}`)); sp.append(s); }
+  if (V.selLead.length) setSub('#kLeadsSub', deltaEl(V.TL.leads, V.TLP && V.TLP.leads, 'up'));
+  else $('#kLeadsSub').textContent = 'nenhuma campanha de lead selecionada';
+  sparkVals = V.dias.map(d => d.leads.meta + d.leads.google); desenharSparkHero(anim);
+  countTo($('#kInv'), V.T.invest, fmt.money, anim, 80);
+  if (V.aud.invest > 0 && V.T.invest > 0) $('#kInvSub').textContent = `${fmt.pct0(V.aud.invest / V.T.invest)} em audiência`;
+  else setSub('#kInvSub', deltaEl(V.T.invest, V.TP && V.TP.invest, null, true));
+  countTo($('#kCpl'), V.cpl, fmt.money2, anim, 140);
+  if (V.selLead.length) setSub('#kCplSub', deltaEl(V.cpl, V.cplPrev, 'down', true));
+  else $('#kCplSub').textContent = 'sem lead no filtro';
+  countTo($('#kQual'), V.funil.qual.total, fmt.int, anim, 200);
+  $('#kQualSub').textContent = V.TL.leads ? `${fmt.pct(V.funil.qual.total / V.TL.leads)} dos leads` : 'sem leads';
+  countTo($('#kVen'), V.funil.vendas.total, fmt.int, anim, 260);
+  $('#kVenSub').textContent = V.TL.leads ? `${fmt.pct(V.funil.vendas.total / V.TL.leads)} dos leads` : 'sem leads';
+  countTo($('#kSeg'), V.aud.seguidores, fmt.int, anim, 320);
+  setSub('#kSegSub', deltaEl(V.aud.seguidores, V.aud.seguidoresPrev, 'up', true));
+  countTo($('#kVis'), V.aud.visitas, fmt.int, anim, 380);
+  $('#kVisSub').textContent = V.aud.temTrafego ? (V.aud.visitas ? `${fmt.money2(V.aud.investTrafego / V.aud.visitas)} por visita` : 'sem visitas') : 'sem campanha de tráfego';
+}
+
+function renderAudiencia(V, anim) {
+  const A = V.aud;
+  countTo($('#aSeg'), A.seguidores, fmt.int, anim, 0);
+  setSub('#aSegSub', deltaEl(A.seguidores, A.seguidoresPrev, 'up'));
+  countTo($('#aVis'), A.visitas, fmt.int, anim, 60);
+  if (A.temTrafego && A.visitas) { const s = el('span'); s.append(document.createTextNode(`${fmt.money2(A.investTrafego / A.visitas)} por visita · `), deltaEl(A.visitas, A.visitasPrev, 'up', true)); setSub('#aVisSub', s); }
+  else $('#aVisSub').textContent = A.temTrafego ? 'sem visitas no período' : 'nenhuma campanha de tráfego selecionada';
+  countTo($('#aTp'), A.thruplays, fmt.int, anim, 120);
+  if (A.temVideo && A.thruplays) $('#aTpSub').textContent = `${fmt.money2(A.investVideo / A.thruplays)} por ThruPlay · ${fmt.pct(A.thruplays / A.imprVideo)} das impressões`;
+  else $('#aTpSub').textContent = A.temVideo ? 'sem ThruPlays no período' : 'nenhuma campanha de vídeo selecionada';
+  countTo($('#aInv'), A.invest, fmt.money, anim, 180);
+  $('#aInvSub').textContent = A.impressoes ? `${fmt.comp(A.impressoes)} impressões · CPM ${fmt.money2(A.invest / A.impressoes * 1000)}` : 'nenhuma campanha de audiência selecionada';
+  const dias = V.dias;
+  barSeg.setData(dias, dias.map(d => d.seguidores), '', `Seguidores novos por dia nos últimos ${V.periodo} dias: ${fmt.int(A.seguidores)} no total.`);
+  barVis.setData(dias, dias.map(d => d.visitas), A.temTrafego ? '' : 'Nenhuma campanha de tráfego', `Visitas ao perfil por dia: ${fmt.int(A.visitas)} no total.`);
+  barTp.setData(dias, dias.map(d => d.thruplays), A.temVideo ? '' : 'Nenhuma campanha de vídeo', `ThruPlays por dia: ${fmt.int(A.thruplays)} no total.`);
+  if (!$('#audTable').hidden) renderTabelaAud(V);
+}
+
+function renderTabelaAud(V) {
+  const box = $('#audTable'); box.textContent = '';
+  const t = el('table', 'dt'), th = el('thead'), hr = el('tr');
+  ['Dia', 'Seguidores novos', 'Visitas ao perfil', 'ThruPlays'].forEach(x => hr.append(el('th', '', x)));
+  th.append(hr); t.append(th);
+  const tb = el('tbody');
+  V.dias.slice().reverse().forEach(d => {
+    const tr = el('tr');
+    [d.hoje ? `${fmt.dm(d.data)} (hoje, parcial)` : fmt.dm(d.data), fmt.int(d.seguidores), V.aud.temTrafego ? fmt.int(d.visitas) : ND, V.aud.temVideo ? fmt.int(d.thruplays) : ND].forEach(x => tr.append(el('td', '', x)));
+    tb.append(tr);
+  });
+  t.append(tb); box.append(t);
+}
+
+function renderRoi(V, anim) {
+  const R = V.roi;
+  countTo($('#roas'), R.roas, fmt.x, anim, 120);
+  countTo($('#rev'), R.receita, fmt.money, anim, 60);
+  const roiEl = $('#roi');
+  if (R.roi == null) { roiEl.className = ''; roiEl.textContent = ND; }
+  else { roiEl.className = R.roi >= 0 ? 'good' : 'bad'; roiEl.textContent = `${R.roi >= 0 ? '▲' : '▼'} ${fmt.pctS(R.roi)}`; }
+  countTo($('#cac'), R.custoVenda, fmt.money, anim, 120);
+  if (V.aud.invest > 0) {
+    $('#roasLLbl').textContent = 'ROAS sem audiência';
+    countTo($('#roasL'), V.TL.invest > 0 ? R.receita / V.TL.invest : null, fmt.x, anim, 180);
+  } else {
+    $('#roasLLbl').textContent = 'Ticket médio';
+    countTo($('#roasL'), R.ticket, fmt.money, anim, 180);
+  }
+  $('#roiNote').textContent = !V.selLead.length
+    ? 'Nenhuma campanha de lead selecionada. Retorno em receita só é medido nas campanhas que geram leads.'
+    : V.coorteN
+      ? `Receita ganha no Pipedrive com os leads dos últimos ${V.periodo} dias, sobre todo o investimento selecionado. ${fmt.pct0(R.pctAberto)} desses leads seguem em aberto, então tende a subir.`
+      : 'Sem leads no período para calcular o retorno.';
+  gauge.setData(R.roas);
+}
+
+function renderEtapas(V) {
+  const ul = $('#stl'); ul.textContent = '';
+  $('#chipEtapas').textContent = `${fmt.int(V.roi.abertos)} em aberto`;
+  const max = Math.max(1, ...ETAPAS_ABERTAS.map(k => V.pipe[k].n));
+  ETAPAS_ABERTAS.forEach((k, i) => {
+    const s = V.pipe[k], li = el('li'); li.dataset.k = k; li.style.setProperty('--c', COL.st[i]);
+    const nm = el('span', 'sn', ETAPA_NOME[k]); const bar = el('span', 'sb'); const fill = el('i'); bar.append(fill); nm.append(bar);
+    li.append(el('i', 'sd'), nm, el('span', 'sc', fmt.int(s.n)), el('span', 'sv', fmt.moneyK(s.valor)));
+    li.title = `${ETAPA_NOME[k]}: ${fmt.int(s.n)} negócios, ${fmt.money(s.valor)}. Parados há 7 dias ou mais: ${fmt.int(s.parados)}.`;
+    li.addEventListener('pointerenter', () => orbita.highlight(k));
+    li.addEventListener('pointerleave', () => orbita.highlight(null));
+    ul.append(li);
+    requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = (s.n / max * 100).toFixed(1) + '%'; }));
+  });
+  const f = $('#stf'); f.textContent = '';
+  const item = (pre, strong, pos, cls) => { const s = el('span', cls || ''); s.append(pre, el('b', '', strong), pos || ''); f.append(s); };
+  item('Em aberto ', fmt.money(V.roi.valorAberto), '');
+  item('Perdidos ', fmt.int(V.pipe.perdido.n), V.coorteN ? ` · ${fmt.pct0(V.pipe.perdido.n / V.coorteN)} dos leads` : '');
+  item('Parados 7+ dias ', fmt.int(V.roi.parados), '', V.roi.parados ? 'bad' : '');
+}
+
+function renderObjetivos(V) {
+  const box = $('#objWrap'); box.textContent = '';
+  if (!V.porObjetivo.length) { box.hidden = true; return; }
+  box.hidden = false;
+  const t = el('table', 'obj'), th = el('thead'), hr = el('tr');
+  ['Objetivo', 'Campanhas', 'Investimento', 'Resultado', 'Custo por resultado'].forEach((h, i) => hr.append(el('th', i === 1 ? 'n' : '', h)));
+  th.append(hr); t.append(th);
+  const tb = el('tbody');
+  for (const o of V.porObjetivo) {
+    const O = OBJ[o.o], tr = el('tr');
+    tr.append(el('td', '', O.nome), el('td', 'n', fmt.int(o.n)), el('td', '', fmt.money(o.invest)));
+    const r = el('td'); r.append(document.createTextNode(fmt.int(o.res)), el('span', 'u', O.res)); tr.append(r);
+    const c = el('td'); c.append(document.createTextNode(o.custo == null ? ND : fmt.money2(o.custo)), el('span', 'u', `por ${O.un}`)); tr.append(c);
+    tb.append(tr);
+  }
+  t.append(tb); box.append(t);
+}
+
+function ajustarColunasCamps() {
+  const box = $('#camps'), n = box.querySelectorAll('.camp').length;
+  if (!n) { box.style.gridTemplateColumns = ''; return; }
+  let cols = Math.max(1, Math.min(n, Math.floor((box.clientWidth + 10) / 250)));
+  cols = Math.ceil(n / Math.ceil(n / cols));
+  box.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+}
+function renderCamps(V, anim) {
+  const box = $('#camps'); box.textContent = '';
+  $('#chipCamp').textContent = `${V.sel.length} de ${V.visiveis.length} selecionadas`;
+  if (!V.sel.length) { box.append(vazio('Nenhuma campanha selecionada. Escolha no filtro Campanhas, no topo.')); ajustarColunasCamps(); return; }
+  V.cards.forEach((cd, i) => {
+    const c = cd.c, e = el('div', 'camp fx'), s = cd.s;
+    e.style.setProperty('--c', SRC[c.fonte].cor);
+    e.innerHTML = '<i class="glare"></i><div class="c-top"><span class="c-src"><i></i><span></span></span><span class="pill-s"><i></i></span></div><div class="c-title"></div><div class="c-type"></div><div class="c-mid"><div class="c-big"><b></b><span></span></div><canvas class="c-spark" aria-hidden="true"></canvas></div><div class="c-grid"></div><div class="pace"><div class="pace-h"><span></span><b></b></div><div class="pace-bar"><i></i></div></div>';
+    e.querySelector('.c-src span').textContent = `${SRC[c.fonte].nome} · ${OBJ[c.objetivo].rotulo}`;
+    const pill = e.querySelector('.pill-s'); pill.classList.add(c.status === 'ativa' ? 'on' : 'off'); pill.append(c.status === 'ativa' ? 'Ativa' : 'Pausada');
+    e.querySelector('.c-title').textContent = c.nome;
+    e.querySelector('.c-type').textContent = c.tipo;
+    let big, bigLbl, cells;
+    const ctr = s.impressoes ? fmt.pct(s.cliques / s.impressoes) : ND, cpm = s.impressoes ? fmt.money2(s.invest / s.impressoes * 1000) : ND;
+    if (c.objetivo === 'leads') {
+      big = s.leads; bigLbl = 'leads';
+      cells = [['Investimento', fmt.money(s.invest)], ['CPL', s.leads ? fmt.money2(s.invest / s.leads) : ND], ['CTR', ctr], ['Qualificados', s.leads ? `${fmt.int(cd.q)} · ${fmt.pct0(cd.q / s.leads)}` : '0']];
+    } else if (c.objetivo === 'trafego') {
+      big = s.visitas; bigLbl = 'visitas ao perfil';
+      cells = [['Investimento', fmt.money(s.invest)], ['Custo por visita', s.visitas ? fmt.money2(s.invest / s.visitas) : ND], ['CTR', ctr], ['CPM', cpm]];
+    } else {
+      big = s.thruplays; bigLbl = 'ThruPlays';
+      cells = [['Investimento', fmt.money(s.invest)], ['Custo por ThruPlay', s.thruplays ? fmt.money2(s.invest / s.thruplays) : ND], ['Taxa de ThruPlay', s.impressoes ? fmt.pct(s.thruplays / s.impressoes) : ND], ['CPM', cpm]];
+    }
+    e.querySelector('.c-big span').textContent = bigLbl;
+    countTo(e.querySelector('.c-big b'), big, fmt.int, anim, 120 + i * 60);
+    const grid = e.querySelector('.c-grid');
+    for (const [k, v] of cells) { const cell = el('div', 'cell'); cell.append(el('div', 'k', k), el('div', 'v', v)); grid.append(cell); }
+    const lbl = e.querySelector('.pace-h span'), val = e.querySelector('.pace-h b'), bar = e.querySelector('.pace-bar i');
+    const ritmo = cd.orcPeriodo > 0 ? s.invest / cd.orcPeriodo : 0;
+    if (c.status === 'pausada') { lbl.textContent = c.pausaEm ? `Pausada em ${fmt.dm(c.pausaEm)}` : 'Pausada'; val.textContent = `${fmt.money(s.invest)} no período`; }
+    else { lbl.textContent = 'Ritmo do orçamento'; val.textContent = `${fmt.pct0(ritmo)} de ${fmt.money(cd.orcPeriodo)}`; }
+    box.append(e);
+    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = clamp(ritmo * 100, 0, 100) + '%'; }));
+    tilt(e); spot(e);
+  });
+  ajustarColunasCamps();
+  $$('#camps .camp').forEach((e, i) => sparkline(e.querySelector('.c-spark'), V.cards[i].serie, SRC[V.cards[i].c.fonte].cor, anim));
+}
+
+function renderFeed(V, anim) {
+  const ol = $('#feed'); ol.textContent = '';
+  $('#chipEv').textContent = `${fmt.int(V.eventos.length)} no período`;
+  const evs = V.eventos.slice(-12).reverse();
+  if (!evs.length) { const li = el('li'); li.append(vazio('Sem eventos para as campanhas selecionadas.')); ol.append(li); return; }
+  evs.forEach((ev, i) => {
+    const li = el('li', 'ev' + (ev.cls ? ' ' + ev.cls : ''));
+    if (anim && !REDUCED) { li.classList.add('in'); li.style.animationDelay = `${i * 45}ms`; }
+    const dot = el('i', 'ed'); dot.style.setProperty('--c', SRC[ev.fonte].cor);
+    const body = el('div'); const top = el('div', 'et');
+    const k = el('span', 'ek', (ev.cls === 'win' ? '✓ ' : ev.cls === 'lost' ? '✕ ' : '') + ev.kind);
+    const dt = new Date(ev.t); const tm = el('time', '', `${fmt.dm(dt)} · ${fmt.hm(dt)}`); tm.dateTime = dt.toISOString();
+    top.append(k, tm); body.append(top, el('p', 'em', ev.msg));
+    li.append(dot, body); ol.append(li);
+  });
+}
+
+function renderTabela(V) {
+  const box = $('#dTable'); box.textContent = '';
+  const t = el('table', 'dt'), th = el('thead'), hr = el('tr');
+  ['Dia', 'Leads Meta', 'Leads Google', 'Investimento em lead', 'CPL 7d Meta', 'CPL 7d Google'].forEach(x => hr.append(el('th', '', x)));
+  th.append(hr); t.append(th);
+  const tb = el('tbody');
+  V.dias.slice().reverse().forEach(d => {
+    const tr = el('tr');
+    [d.hoje ? `${fmt.dm(d.data)} (hoje, parcial)` : fmt.dm(d.data), fmt.int(d.leads.meta), fmt.int(d.leads.google), fmt.money(d.investLead), d.cpl7.meta == null ? ND : fmt.money2(d.cpl7.meta), d.cpl7.google == null ? ND : fmt.money2(d.cpl7.google)].forEach(x => tr.append(el('td', '', x)));
+    tb.append(tr);
+  });
+  t.append(tb); box.append(t);
+}
+
+/* ================= filtros ================= */
+let POP = null;
+function textoFontes() { const on = ['meta', 'google'].filter(f => S.fontes[f]); return on.length === 2 ? 'Meta e Google' : on.length ? SRC[on[0]].nome : 'Nenhuma'; }
+function renderPills(V) {
+  $('#pvPeriodo').textContent = `${S.periodo} dias`;
+  $('#pvFontes').textContent = textoFontes();
+  $('#pvStatus').textContent = S.pausadas ? 'Ativas e pausadas' : 'Só ativas';
+  $('#pvCamp').textContent = `${V.sel.length} de ${V.visiveis.length}`;
+}
+function opcao(role, checked, texto, act, cor, sub) {
+  const b = el('button', 'opt'); b.type = 'button'; b.setAttribute('role', role); b.setAttribute('aria-checked', String(checked)); b.dataset.act = act;
+  b.append(el('i', 'ck'));
+  if (cor) { const d = el('i', 'od'); d.style.setProperty('--c', cor); b.append(d); }
+  b.append(el('span', 'ot', texto));
+  if (sub) b.append(el('span', 'os', sub));
+  return b;
+}
+function renderPop(f) {
+  const pop = $(`.fp[data-f="${f}"] .pop`); pop.textContent = '';
+  if (f === 'periodo') [7, 14, 30, 90].forEach(p => pop.append(opcao('menuitemradio', S.periodo === p, `Últimos ${p} dias`, String(p))));
+  if (f === 'fontes') ['meta', 'google'].forEach(s => pop.append(opcao('menuitemcheckbox', S.fontes[s], SRC[s].nome, s, SRC[s].cor)));
+  if (f === 'status') { pop.append(opcao('menuitemradio', !S.pausadas, 'Só campanhas ativas', 'ativas')); pop.append(opcao('menuitemradio', S.pausadas, 'Ativas e pausadas', 'todas')); }
+  if (f === 'campanhas') {
+    if (!VIEW.visiveis.length) pop.append(el('div', 'pop-note', 'Ligue ao menos uma fonte para ver as campanhas.'));
+    VIEW.visiveis.forEach(c => pop.append(opcao('menuitemcheckbox', S.sel.has(c.id), c.nome, c.id, SRC[c.fonte].cor, `${OBJ[c.objetivo].curto} · ${c.status}`)));
+    if (VIEW.visiveis.length) {
+      const acts = el('div', 'pop-acts');
+      const a = el('button', '', 'Todas'); a.type = 'button'; a.dataset.act = '*todas';
+      const b = el('button', '', 'Só leads'); b.type = 'button'; b.dataset.act = '*leads';
+      const c = el('button', '', 'Limpar'); c.type = 'button'; c.dataset.act = '*limpar';
+      acts.append(a, b, c); pop.append(acts);
+    }
+  }
+}
+function abrirPop(fp) {
+  fecharPop(); POP = fp;
+  fp.querySelector('.pill').setAttribute('aria-expanded', 'true');
+  renderPop(fp.dataset.f);
+  const pop = fp.querySelector('.pop'); pop.style.left = ''; pop.hidden = false;
+  const pr = pop.getBoundingClientRect(), lim = document.documentElement.clientWidth - 8;
+  if (pr.right > lim && getComputedStyle(fp).position !== 'static') pop.style.left = Math.round(lim - pr.right) + 'px';
+  const first = pop.querySelector('.opt[aria-checked="true"]') || pop.querySelector('.opt, button');
+  if (first) first.focus();
+}
+function fecharPop() {
+  if (!POP) return;
+  POP.querySelector('.pill').setAttribute('aria-expanded', 'false');
+  POP.querySelector('.pop').hidden = true; POP = null;
+}
+function acaoFiltro(f, act) {
+  if (f === 'periodo') { S.periodo = +act; fecharPop(); }
+  else if (f === 'fontes') { S.fontes[act] = !S.fontes[act]; }
+  else if (f === 'status') { S.pausadas = act === 'todas'; fecharPop(); }
+  else if (f === 'campanhas') {
+    if (act === '*todas') VIEW.visiveis.forEach(c => S.sel.add(c.id));
+    else if (act === '*limpar') VIEW.visiveis.forEach(c => S.sel.delete(c.id));
+    else if (act === '*leads') VIEW.visiveis.forEach(c => { if (c.objetivo === 'leads') S.sel.add(c.id); else S.sel.delete(c.id); });
+    else if (S.sel.has(act)) S.sel.delete(act); else S.sel.add(act);
+  }
+  atualizar();
+  if (POP && POP.dataset.f === f) { renderPop(f); const b = POP.querySelector(`[data-act="${CSS.escape(act)}"]`); if (b) b.focus(); }
+}
+function montarFiltros() {
+  $$('.fp').forEach(fp => {
+    fp.querySelector('.pill').addEventListener('click', e => { e.stopPropagation(); if (POP === fp) fecharPop(); else abrirPop(fp); });
+    const pop = fp.querySelector('.pop');
+    pop.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (!b) return; e.stopPropagation(); acaoFiltro(fp.dataset.f, b.dataset.act); });
+    pop.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      e.preventDefault();
+      const items = Array.from(pop.querySelectorAll('button')), i = items.indexOf(document.activeElement);
+      const n = items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length]; if (n) n.focus();
+    });
+  });
+  document.addEventListener('pointerdown', e => { if (POP && !POP.contains(e.target)) fecharPop(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && POP) { const b = POP.querySelector('.pill'); fecharPop(); b.focus(); } });
+}
+
+/* ================= pergunte ao painel ================= */
+let SAMPLE = null, askCtl = null;
+const r2 = v => (v == null || !isFinite(v) ? null : Math.round(v * 100) / 100);
+function montarPrompt(q) {
+  const V = VIEW, R = V.roi, A = V.aud;
+  const fonte = f => ({ investimento: r2(V.TL[f].invest), impressoes: V.TL[f].impressoes, cliques: V.TL[f].cliques, leads: V.TL[f].leads, cpl: r2(V.TL[f].leads ? V.TL[f].invest / V.TL[f].leads : null), ctr: r2(V.TL[f].impressoes ? V.TL[f].cliques / V.TL[f].impressoes : null) });
+  const dados = {
+    modo: 'demonstração: números de exemplo, não são dados reais da agência',
+    moeda: CONFIG.moeda, periodo_dias: V.periodo,
+    filtros: { fontes: ['meta', 'google'].filter(f => S.fontes[f]), inclui_pausadas: S.pausadas, campanhas_selecionadas: V.sel.map(c => `${c.nome} (${OBJ[c.objetivo].nome})`) },
+    investimento_total: r2(V.T.invest),
+    por_objetivo: V.porObjetivo.map(o => ({ objetivo: OBJ[o.o].nome, campanhas: o.n, investimento: r2(o.invest), resultado: o.res, unidade: OBJ[o.o].res, custo_por_resultado: r2(o.custo) })),
+    campanhas_de_lead: { investimento: r2(V.TL.invest), leads: V.TL.leads, cpl: r2(V.cpl), cpl_periodo_anterior: r2(V.cplPrev), leads_periodo_anterior: V.TLP ? V.TLP.leads : null, qualificados: V.funil.qual.total, propostas: V.funil.prop.total, vendas: R.vendas, receita: r2(R.receita), custo_por_qualificado: r2(R.cpq), ticket_medio: r2(R.ticket), ciclo_medio_dias: r2(R.ciclo), leads_ainda_em_aberto: r2(R.pctAberto), por_fonte: { meta: V.fontesLead.has('meta') ? fonte('meta') : null, google: V.fontesLead.has('google') ? fonte('google') : null } },
+    retorno_sobre_todo_investimento: { roas: r2(R.roas), roi: r2(R.roi), custo_por_venda: r2(R.custoVenda) },
+    audiencia: { seguidores_novos_conta_instagram: A.seguidores, seguidores_periodo_anterior: A.seguidoresPrev, observacao_seguidores: 'somam orgânico e pago, não são atribuídos a campanha', visitas_ao_perfil: A.visitas, custo_por_visita: r2(A.visitas ? A.investTrafego / A.visitas : null), thruplays: A.thruplays, custo_por_thruplay: A.thruplays ? Math.round(A.investVideo / A.thruplays * 1000) / 1000 : null, investimento: r2(A.invest) },
+    campanhas: V.cards.map(cd => ({ nome: cd.c.nome, fonte: cd.c.fonte, objetivo: OBJ[cd.c.objetivo].nome, status: cd.c.status, investimento: r2(cd.s.invest), impressoes: cd.s.impressoes, cliques: cd.s.cliques, leads: cd.s.leads, visitas_ao_perfil: cd.s.visitas, thruplays: cd.s.thruplays, qualificados: cd.q, vendas: cd.vendas, receita: r2(cd.receita), ritmo_orcamento: r2(cd.orcPeriodo ? cd.s.invest / cd.orcPeriodo : null) })),
+    pipeline_aberto: Object.fromEntries(ETAPAS_ABERTAS.map(k => [k, { negocios: V.pipe[k].n, valor: r2(V.pipe[k].valor), parados_7_dias: V.pipe[k].parados }])),
+    perdidos: V.pipe.perdido.n
+  };
+  return [
+    'Você é o analista de performance da Hub Performance, agência de tráfego pago para arquitetos e designers de interiores.',
+    'Responda em português do Brasil, em tom direto e prático, com no máximo 180 palavras. Vá direto à conclusão e depois mostre os números que a sustentam.',
+    'Use somente os números do JSON abaixo. Não invente dados nem benchmarks de mercado. Se a pergunta pedir algo que não está nos dados, diga isso. Se a amostra for pequena demais para concluir, diga isso também.',
+    'Campanhas de audiência (tráfego para o perfil e vídeo) não geram leads diretamente: avalie pelo custo por resultado delas. Seguidores novos são da conta inteira e não medem uma campanha sozinha.',
+    'Não use travessão. Se fizer lista, no máximo 4 itens curtos. Valores monetários na moeda indicada.',
+    'Os dados são de demonstração; mencione isso só se fizer diferença para a resposta.',
+    '',
+    'Dados do painel:',
+    JSON.stringify(dados),
+    '',
+    'Pergunta: ' + q
+  ].join('\n');
+}
+const ERROS_OCULTAR = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'];
+const ERROS_TEXTO = {
+  rate_limited: 'Muitas perguntas seguidas. Espere um pouco e tente de novo.',
+  session_expired: 'Sua sessão expirou. Entre de novo no Claude e tente outra vez.',
+  refused: 'O Claude não respondeu essa pergunta. Tente perguntar de outro jeito.',
+  empty_completion: 'Veio uma resposta vazia. Tente perguntar de outro jeito.',
+  prompt_too_large: 'Dados demais para uma pergunta. Reduza o período ou as campanhas.',
+  cancelled: 'Resposta interrompida.'
+};
+async function perguntar(q) {
+  q = (q || '').trim();
+  if (!SAMPLE || !q) return;
+  if (askCtl) askCtl.abort();
+  const ctl = new AbortController(); askCtl = ctl;
+  const ans = $('#ans'), txt = $('#ansText'), note = $('#ansNote'), stop = $('#ansStop'), send = $('#askSend');
+  ans.hidden = false; $('#ansQ').textContent = q; txt.textContent = 'Analisando os números da tela, pode levar até um minuto'; txt.classList.add('thinking'); note.textContent = ''; stop.hidden = false; send.disabled = true;
+  try {
+    const res = await SAMPLE(montarPrompt(q), { signal: ctl.signal, modelTier: 'complex', onText: ({ text }) => { if (askCtl !== ctl) return; txt.classList.remove('thinking'); txt.textContent = text; } });
+    if (askCtl === ctl) {
+      txt.classList.remove('thinking'); txt.textContent = res.text;
+      const notas = [];
+      if (res.truncated) notas.push('A resposta foi cortada. Tente uma pergunta mais específica.');
+      if (res.modelTierApplied && res.modelTierApplied !== 'complex') notas.push('Seu plano respondeu com um modelo mais leve que o mais avançado.');
+      note.textContent = notas.join(' ');
+    }
+  } catch (e) {
+    if (askCtl !== ctl && e && e.code === 'cancelled') return;
+    const code = e && e.code;
+    txt.classList.remove('thinking');
+    if (ERROS_OCULTAR.includes(code)) { SAMPLE = null; $('#ask').hidden = true; orbita.resize(); return; }
+    txt.textContent = code === 'refused' ? '' : (e && e.text) || '';
+    note.textContent = ERROS_TEXTO[code] || 'Não consegui responder agora. Tente de novo em instantes.';
+  } finally {
+    if (askCtl === ctl) { askCtl = null; stop.hidden = true; send.disabled = false; }
+  }
+}
+function montarPergunta() {
+  $('#askForm').addEventListener('submit', e => { e.preventDefault(); perguntar($('#askInput').value); });
+  $('#sugs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $('#askInput').value = b.textContent; perguntar(b.textContent); });
+  $('#ansStop').addEventListener('click', () => { if (askCtl) askCtl.abort(); });
+  $('#ansClose').addEventListener('click', () => { if (askCtl) askCtl.abort(); $('#ans').hidden = true; });
+  (async () => {
+    try {
+      if (!window.claude || typeof window.claude.use !== 'function') return;
+      const s = await window.claude.use('sample');
+      if (!s) return;
+      SAMPLE = s; $('#ask').hidden = false;
+      requestAnimationFrame(() => orbita.resize());
+    } catch (e) { /* sem acesso ao Claude nesta visualização */ }
+  })();
+}
+
+/* ================= orquestração ================= */
+const orbita = criarOrbita(), diario = criarDiario(), cplChart = criarCpl(), funil = criarFunil(), gauge = criarGauge();
+const barSeg = criarBarras('#mSegWrap', '#mSeg', '#mSegTip', COL.neutral, 'seguidores novos');
+const barVis = criarBarras('#mVisWrap', '#mVis', '#mVisTip', COL.meta, 'visitas ao perfil');
+const barTp = criarBarras('#mTpWrap', '#mTp', '#mTpTip', COL.meta, 'ThruPlays');
+const comps = [orbita, diario, cplChart, funil, gauge, barSeg, barVis, barTp];
+let VIEW = null;
+
+function aplicar(V, opts) {
+  const o = opts || {}, anim = o.anim !== false;
+  VIEW = V;
+  renderPills(V);
+  $('#lgM').hidden = !V.fontesLead.has('meta'); $('#lgG').hidden = !V.fontesLead.has('google');
+  renderKPIs(V, anim);
+  funil.setData(V);
+  orbita.setData(V, { snap: o.snap });
+  diario.setData(V, o.intro);
+  cplChart.setData(V);
+  renderRoi(V, anim);
+  renderEtapas(V);
+  renderAudiencia(V, anim);
+  renderObjetivos(V);
+  renderCamps(V, anim);
+  renderFeed(V, anim);
+  if (!$('#dTable').hidden) renderTabela(V);
+  if (REDUCED) requestAnimationFrame(desenharTudo); else finalizarOcultos();
+}
+function finalizar(c) { c.draw(performance.now() + 60000, 0); c.pend = true; }
+function finalizarOcultos() { for (const c of comps) if (c !== orbita && !c.visible) finalizar(c); }
+function desenharTudo() { const now = performance.now() + 60000; comps.forEach(c => c.draw(now, 0)); }
+function atualizar() {
+  salvar();
+  aplicar(computar(), { anim: true });
+  if (!REDUCED) $$('.col .card:not(.orbit-card), .aud').forEach(c => { c.classList.remove('recal'); void c.offsetWidth; c.classList.add('recal'); });
+}
+
+$('#tblBtn').addEventListener('click', () => {
+  const btn = $('#tblBtn'), on = btn.getAttribute('aria-pressed') !== 'true';
+  btn.setAttribute('aria-pressed', String(on));
+  $('#dWrap').hidden = on; $('#dTable').hidden = !on;
+  if (on) renderTabela(VIEW); else requestAnimationFrame(() => { diario.resize(); if (REDUCED) desenharTudo(); });
+});
+$('#audTblBtn').addEventListener('click', () => {
+  const btn = $('#audTblBtn'), on = btn.getAttribute('aria-pressed') !== 'true';
+  btn.setAttribute('aria-pressed', String(on));
+  $('#audCharts').hidden = on; $('#audTable').hidden = !on;
+  if (on) renderTabelaAud(VIEW); else requestAnimationFrame(() => { [barSeg, barVis, barTp].forEach(c => { c.resize(); c.replay(); }); if (REDUCED) desenharTudo(); });
+});
+$$('.col .card.fx').forEach(spot);
+
+function relogio() {
+  const d = new Date();
+  $('#clock').textContent = d.toLocaleTimeString(LOC, { hour12: false });
+  $('#date').textContent = d.toLocaleDateString(LOC, { weekday: 'short', day: '2-digit', month: '2-digit' }).replace('.', '');
+}
+relogio(); setInterval(relogio, 1000);
+
+montarFiltros();
+montarPergunta();
+comps.forEach(c => c.resize());
+const primeira = !(REDUCED || AUTOMATED);
+if (primeira) document.body.classList.add('enter');
+aplicar(computar(), { anim: primeira, intro: true, snap: !primeira });
+if (primeira) {
+  orbita.intro();
+  orbita.replay(1250);
+  setTimeout(() => document.body.classList.remove('enter'), 2400);
+}
+
+const ro = new ResizeObserver(entries => {
+  for (const en of entries) {
+    if (en.target.id === 'camps') { ajustarColunasCamps(); continue; }
+    if (en.target.id === 'kSparkWrap') { desenharSparkHero(false); continue; }
+    const c = comps.find(x => x.el === en.target);
+    if (c) { c.resize(); if (!c.visible && !REDUCED) c.draw(performance.now() + 60000, 0); }
+  }
+  if (REDUCED) desenharTudo();
+});
+comps.forEach(c => ro.observe(c.el));
+ro.observe($('#camps')); ro.observe($('#kSparkWrap'));
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => es.forEach(en => {
+    const c = comps.find(x => x.el === en.target);
+    if (!c || c.visible === en.isIntersecting) return;
+    c.visible = en.isIntersecting;
+    if (REDUCED || c === orbita) return;
+    if (!c.visible) finalizar(c);
+    else if (c.pend && c.replay) { c.pend = false; c.replay(); }
+  }));
+  comps.forEach(c => io.observe(c.el));
+}
+
+let last = performance.now(), raf = 0;
+function frame(now) {
+  const dt = clamp((now - last) / 1000, 0, .05); last = now;
+  for (const c of comps) if (c.visible) c.draw(now, dt);
+  raf = requestAnimationFrame(frame);
+}
+if (REDUCED) { if (document.fonts && document.fonts.ready) document.fonts.ready.then(desenharTudo); desenharTudo(); }
+else {
+  raf = requestAnimationFrame(frame);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelAnimationFrame(raf);
+    else { last = performance.now(); raf = requestAnimationFrame(frame); }
+  });
+}
+})();
+</script>
+</body>
+</html>

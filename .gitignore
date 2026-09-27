@@ -1,0 +1,42 @@
+# Segredos: nenhuma chave ou token entra no repositório.
+# Qualquer .env fica fora do Git. Só o .env.example (nomes, sem valores) é versionado.
+.env
+.env*
+!.env.example
+
+# dependências
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testes
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# produção
+/build
+
+# diversos
+.DS_Store
+*.pem
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
