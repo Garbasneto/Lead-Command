@@ -72,6 +72,7 @@ export default function CentralDeComando() {
             <section className="card orbit-card pa" style={v({ '--i': '4' })} id="orbitCard">
               <div className="stage3d" id="stage3d">
                 <canvas id="orbit" role="img"></canvas>
+                <div className="olabels" id="olabels"></div>
                 <div className="ov-top">
                   <h2>Órbita do pipeline</h2>
                   <p id="orbitSub"></p>

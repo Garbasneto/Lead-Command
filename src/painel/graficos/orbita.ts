@@ -2,20 +2,17 @@ import { rngDe } from '@/lib/aleatorio';
 import { ETAPA_NOME, ETAPAS_ABERTAS } from '@/lib/etapas';
 import { fmt } from '@/lib/formato';
 import type { Visao } from '@/lib/metricas/computar';
-import type { Campanha, Dados, Etapa, EtapaAberta, Negocio } from '@/lib/tipos';
+import type { Campanha, Dados, EtapaAberta } from '@/lib/tipos';
 import { clamp, DAY, ease, lerp, TAU } from '@/lib/util';
-import { el, type Ambiente, type Componente } from '../ambiente';
+import type { Ambiente, Componente } from '../ambiente';
 import { glowSprite, prepCanvas, rgba, roundRect } from '../desenho';
+import { alvo as alvoComum, D0, IDX, preencherTip as preencherTipComum, RB, RCORE, RINGS, type DotBase } from './orbitaComum';
 
-/* ================= órbita do pipeline ================= */
+/* ================= órbita do pipeline (Canvas 2D, plano B quando não há WebGL) ================= */
 
-type Tipo = 'pre' | 'open' | 'won' | 'lost';
-interface Dot {
-  d: Negocio; th: number; jit: number; ph: number; vf: number; r: number; a: number; kind: Tipo; gone: boolean;
-  tilt: number; rr: number; pend: boolean; sx: number; sy: number; ps: number; pz: number; vis: boolean;
-  e: Etapa | undefined; em: number | undefined;
+interface Dot extends DotBase {
+  th: number; ph: number; vf: number; tilt: number; pend: boolean; sx: number; sy: number; ps: number; pz: number; vis: boolean;
 }
-interface Alvo { kind: Tipo; r: number; a: number; e?: Etapa; em?: number; k?: number }
 interface Ponto { x: number; y: number; s: number; z: number }
 interface Rotulo { k: number; x: number; y: number; w: number; h: number }
 
@@ -27,12 +24,9 @@ export interface Orbita extends Componente {
 }
 
 export function criarOrbita(amb: Ambiente, DATA: Dados, CAMP: Record<string, Campanha>): Orbita {
-  const { $, $$, COL, SANS, MONO, SRC, REDUCED, FINE, signal } = amb;
+  const { $, $$, COL, SANS, MONO, REDUCED, FINE, signal } = amb;
   const stageEl = $('#stage3d'), cv = $<HTMLCanvasElement>('#orbit'), tip = $('#otip');
-  const RINGS: { k: EtapaAberta; r: number }[] = [{ k: 'novo', r: 9.5 }, { k: 'contato', r: 7.95 }, { k: 'qualificado', r: 6.45 }, { k: 'proposta', r: 5.0 }, { k: 'negociacao', r: 3.6 }];
-  const IDX: Record<string, number> = { novo: 0, contato: 1, qualificado: 2, proposta: 3, negociacao: 4 };
   const RC = COL.st;
-  const RB = 10.7, RCORE = 1.12, D0 = 30;
   const st = {
     ctx: null as CanvasRenderingContext2D | null, W: 0, H: 0, visible: true,
     yaw: -.65, yawV: 0, elev: .5, elevT: .5, elevSet: false, D: D0, f: 600, cx: 0, cy: 0, top: 96, bottom: 24,
@@ -96,16 +90,7 @@ export function criarOrbita(amb: Ambiente, DATA: Dados, CAMP: Record<string, Cam
     st.cx = st.W / 2;
     st.cy = st.top + 36 + kT * st.f + Math.max(0, (avail - 36 - (kT + kB) * st.f) / 2);
   }
-  function alvo(dot: Dot, t: number): Alvo {
-    const d = dot.d;
-    if (dot.gone) return { kind: dot.kind, r: dot.r, a: 0, e: dot.e, em: dot.em };
-    if (t < d.criadoEm) return { kind: 'pre', r: RB + 1.4, a: 0 };
-    let e: Etapa = 'novo', em = d.criadoEm;
-    for (const h of d.hist) { if (h.em <= t) { e = h.etapa; em = h.em; } else break; }
-    if (e === 'ganho') return { kind: 'won', r: dot.rr, a: 1, e, em };
-    if (e === 'perdido') return { kind: 'lost', r: RB + 1.8, a: 0, e, em };
-    return { kind: 'open', k: IDX[e], r: RINGS[IDX[e]].r + dot.jit, a: 1, e, em };
-  }
+  const alvo = (dot: Dot, t: number) => alvoComum(dot, t, RB + 1.4);
   function setData(V: Visao, opts?: { snap?: boolean }) {
     const o = opts || {};
     st.t0 = DATA.datas[V.win.a].getTime(); st.t1 = DATA.agora;
@@ -394,19 +379,7 @@ export function criarOrbita(amb: Ambiente, DATA: Dados, CAMP: Record<string, Cam
     return best;
   }
   function rotuloEm(mx: number, my: number) { for (const l of st.labels) if (mx >= l.x && mx <= l.x + l.w && my >= l.y && my <= l.y + l.h) return l.k; return null; }
-  function preencherTip(dot: Dot) {
-    const d = dot.d, c = CAMP[d.campanhaId];
-    tip.textContent = '';
-    const t1 = el('div', 't1'); const sw = el('i'); sw.style.setProperty('--c', SRC[d.fonte].cor); t1.append(sw, document.createTextNode(`#${d.id} · ${SRC[d.fonte].nome}`));
-    const t2 = el('div', 't2', c.nome);
-    const t3 = el('div', 't3');
-    let estado, stale = false;
-    if (dot.kind === 'won') estado = `Venda em ${fmt.dm(new Date(d.fechadoEm as number))}`;
-    else if (dot.kind === 'lost') estado = 'Perdido';
-    else { const dias = Math.max(0, Math.floor((st.tSim - (dot.em as number)) / DAY)); stale = dias >= 7; estado = `${ETAPA_NOME[dot.e as Etapa]} há ${dias} ${dias === 1 ? 'dia' : 'dias'}`; }
-    t3.append(el('b', '', fmt.money(d.valor)), el('span', stale ? 'stale' : '', estado));
-    tip.append(t1, t2, t3);
-  }
+  const preencherTip = (dot: Dot) => preencherTipComum(amb, tip, dot, CAMP, st.tSim);
   function posicionarTip(dot: Dot | null) {
     if (!dot || !dot.vis) { tip.hidden = true; return; }
     if (tip.hidden) return;

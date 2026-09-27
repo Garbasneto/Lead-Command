@@ -1,13 +1,14 @@
-import { ETAPA_NOME, ETAPAS_TODAS } from '../etapas';
+import { ETAPA_NOME, ETAPAS_ABERTAS, ETAPAS_TODAS } from '../etapas';
 import { fmt } from '../formato';
-import type { Campanha, ChaveMetrica, Dados, Etapa, Filtros, Fonte, Negocio, Objetivo } from '../tipos';
+import type { Campanha, ChaveMetrica, Dados, Etapa, EtapaAberta, Filtros, Fonte, Negocio, Objetivo } from '../tipos';
 import { DAY } from '../util';
 
 /* ================= cálculo =================
    Um lugar só para as métricas do painel. As regras fixas estão no CLAUDE.md:
    - CPL usa só campanhas de lead (audiência nunca entra no CPL nem no funil de leads).
    - Retorno por coorte: receita dos leads criados no período ÷ todo o investimento selecionado.
-   - Qualificado e proposta contam negócios que chegaram à etapa. Parado = 7+ dias na mesma etapa. */
+   - Qualificado e proposta contam negócios que chegaram à etapa. Parado = 7+ dias na mesma etapa.
+   - Velocidade da etapa: mediana de dias na etapa, nas saídas dos últimos 30 dias. */
 
 export const chegou = (d: Negocio, e: Etapa) => d.hist.some(h => h.etapa === e);
 export const CHAVES: ChaveMetrica[] = ['invest', 'impressoes', 'cliques', 'leads', 'visitas', 'thruplays'];
@@ -140,6 +141,21 @@ export function computar(DATA: Dados, S: Filtros) {
   }
   eventos.sort((a, b) => a.t - b.t);
 
+  // velocidade de cada etapa: mediana de dias que os negócios ficaram nela, contando as saídas
+  // (avanço ou perda) dos últimos 30 dias. É o que faz cada anel da órbita girar (VISUAL.md).
+  const t30 = DATA.agora - 30 * DAY;
+  const estadias = Object.fromEntries(ETAPAS_ABERTAS.map(k => [k, [] as number[]])) as Record<EtapaAberta, number[]>;
+  for (const d of DATA.deals) {
+    if (!selIds.has(d.campanhaId)) continue;
+    for (let i = 0; i < d.hist.length - 1; i++) {
+      const h = d.hist[i], prox = d.hist[i + 1];
+      if (prox.em < t30 || prox.em > DATA.agora || !(h.etapa in estadias)) continue;
+      estadias[h.etapa as EtapaAberta].push((prox.em - h.em) / DAY);
+    }
+  }
+  const mediana = (a: number[]) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+  const velocidade = Object.fromEntries(ETAPAS_ABERTAS.map(k => [k, { mediana: mediana(estadias[k]), n: estadias[k].length }])) as Record<EtapaAberta, { mediana: number | null; n: number }>;
+
   const cards = sel.map(c => {
     const s = Object.fromEntries(CHAVES.map(k => [k, 0])) as Totais;
     let ativo = 0; const serie: number[] = [];
@@ -154,6 +170,6 @@ export function computar(DATA: Dados, S: Filtros) {
     return { c, s, serie, orcPeriodo: c.orc * ativo, q: cd.filter(d => chegou(d, 'qualificado')).length, vendas: v.length, receita: v.reduce((a, d) => a + d.valor, 0) };
   });
 
-  return { periodo: p, win, visiveis, sel, selLead, fontesLead, T, TP, TL, TLP, cpl, cplPrev, dias, funil, pipe, roi, aud, porObjetivo, eventos, cards, coorte, coorteN: coorte.length };
+  return { periodo: p, win, visiveis, sel, selLead, fontesLead, T, TP, TL, TLP, cpl, cplPrev, dias, funil, pipe, roi, aud, porObjetivo, eventos, cards, coorte, coorteN: coorte.length, velocidade };
 }
 

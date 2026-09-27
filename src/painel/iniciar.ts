@@ -11,7 +11,8 @@ import { criarCpl } from './graficos/cpl';
 import { criarDiario } from './graficos/diario';
 import { criarFunil } from './graficos/funil';
 import { criarGauge } from './graficos/gauge';
-import { criarOrbita } from './graficos/orbita';
+import { criarOrbita, type Orbita } from './graficos/orbita';
+import { criarOrbitaGL, suportaWebGL } from './graficos/orbitaGL';
 import { montarPergunta } from './pergunta';
 import {
   ajustarColunasCamps, desenharSparkHero, renderAudiencia, renderCamps, renderEtapas, renderFeed,
@@ -29,7 +30,11 @@ export function iniciarPainel(root: HTMLElement): () => void {
   const CAMP: Record<string, Campanha> = Object.fromEntries(DATA.campanhas.map(c => [c.id, c]));
   const S = carregarFiltros(DATA, CAMP);
 
-  const orbita = criarOrbita(amb, DATA, CAMP), diario = criarDiario(amb), cplChart = criarCpl(amb), funil = criarFunil(amb), gauge = criarGauge(amb);
+  // Órbita em WebGL (three.js); sem WebGL, a versão em Canvas 2D do protótipo (plano B do VISUAL.md).
+  let orbita: Orbita;
+  try { orbita = suportaWebGL() ? criarOrbitaGL(amb, DATA, CAMP) : criarOrbita(amb, DATA, CAMP); }
+  catch { orbita = criarOrbita(amb, DATA, CAMP); }
+  const diario = criarDiario(amb), cplChart = criarCpl(amb), funil = criarFunil(amb), gauge = criarGauge(amb);
   const barSeg = criarBarras(amb, '#mSegWrap', '#mSeg', '#mSegTip', amb.COL.neutral, 'seguidores novos');
   const barVis = criarBarras(amb, '#mVisWrap', '#mVis', '#mVisTip', amb.COL.meta, 'visitas ao perfil');
   const barTp = criarBarras(amb, '#mTpWrap', '#mTp', '#mTpTip', amb.COL.meta, 'ThruPlays');

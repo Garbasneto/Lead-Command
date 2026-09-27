@@ -29,6 +29,7 @@ export interface Ambiente {
   timeout: (cb: () => void, ms: number) => void;
   interval: (cb: () => void, ms: number) => void;
   observar: <O extends { disconnect(): void }>(o: O) => O;
+  aoEncerrar: (fn: () => void) => void;
   encerrar: () => void;
 }
 
@@ -58,6 +59,7 @@ export function criarAmbiente(root: HTMLElement): Ambiente {
   const timers = new Set<ReturnType<typeof setTimeout>>();
   const intervals = new Set<ReturnType<typeof setInterval>>();
   const observers = new Set<{ disconnect(): void }>();
+  const limpezas: (() => void)[] = [];
 
   return {
     $, $$,
@@ -84,6 +86,7 @@ export function criarAmbiente(root: HTMLElement): Ambiente {
     timeout(cb, ms) { const id = setTimeout(() => { timers.delete(id); if (vivo) cb(); }, ms); timers.add(id); },
     interval(cb, ms) { intervals.add(setInterval(() => { if (vivo) cb(); }, ms)); },
     observar(o) { observers.add(o); return o; },
+    aoEncerrar(fn) { limpezas.push(fn); },
     encerrar() {
       vivo = false;
       ctl.abort();
@@ -91,6 +94,7 @@ export function criarAmbiente(root: HTMLElement): Ambiente {
       timers.forEach(id => clearTimeout(id)); timers.clear();
       intervals.forEach(id => clearInterval(id)); intervals.clear();
       observers.forEach(o => o.disconnect()); observers.clear();
+      limpezas.splice(0).forEach(fn => fn());
     }
   };
 }

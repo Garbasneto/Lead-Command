@@ -30,6 +30,7 @@ Dono do projeto: Garbas. Ele não é programador. Fale com ele em português do 
 - `src/app/`: rotas do Next.js. `layout.tsx` carrega as fontes (next/font) e `globals.css` é o CSS do protótipo sem mudanças.
 - `src/components/CentralDeComando.tsx`: a marcação da tela, igual ao HTML do protótipo.
 - `src/painel/`: o script do protótipo em TypeScript, que liga a tela depois de montada (`iniciar.ts`), com os gráficos em `graficos/`. Tudo o que ele liga é desligado ao sair (`ambiente.ts`).
+- Órbita: `src/painel/graficos/orbitaGL.ts` (WebGL com three.js usado direto, no mesmo laço de animação do painel; react-three-fiber fica para quando a tela virar componentes React). Sem WebGL, cai para `orbita.ts` (Canvas 2D do protótipo). O que cada efeito representa está no topo do `orbitaGL.ts`.
 - `src/lib/`: dados e regras, sem depender do navegador. `tipos.ts` é o formato que o painel consome, `demo/` gera os dados de demonstração e `metricas/computar.ts` é o lugar único das métricas.
 - Antes de entregar: `npm run lint`, `npm run typecheck` e `npm run build`.
 - Next.js 16 mudou bastante: as regras do framework para agentes ficam em @AGENTS.md (mantido pelo próprio `next dev`).
